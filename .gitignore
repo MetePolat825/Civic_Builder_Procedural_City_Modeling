@@ -1,10 +1,28 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-*$py.class
+*.pyo
+*.pyd
+*.dll
+*.so
+*.dylib
+
+# Ignore asset-heavy folders
+# Exclude large asset files like 3D models (e.g., .obj, .fbx) or textures for version control
+assets/     
 
 # C extensions
 *.so
+
+# Virtual environment directories
+venv/
+env/
+.virtualenv/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
 
 # Distribution / packaging
 .Python
@@ -160,3 +178,15 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+
+# Blender-specific files
+*.blend1
+*.blend2
+*.blend@
+
+# Unreal Engine-generated files
+*.uproject
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
