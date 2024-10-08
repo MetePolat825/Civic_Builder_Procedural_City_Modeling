@@ -1,7 +1,7 @@
 # Importing necessary modules
 
 import sys
-from user_interface import run_ui  # Placeholder for the Tkinter UI module
+from user_interface import App  # Placeholder for the Tkinter UI module
 
 def initialize_project():
     """
@@ -26,7 +26,8 @@ def main():
         initialize_project()
 
         # Launch the user interface (Tkinter UI)
-        run_ui()  # Placeholder for your future UI code
+        app = App()
+        app.run()  # Placeholder for your future UI code
 
     except KeyboardInterrupt:
         print("\nProject interrupted. Exiting...")
