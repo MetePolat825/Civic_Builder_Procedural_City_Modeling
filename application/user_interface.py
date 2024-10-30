@@ -6,37 +6,8 @@ import webbrowser  # For opening the local HTML documentation
 import time  # To handle splash screen timing
 import threading  # For running the splash screen in a separate thread
 
-class SplashScreen:
-    """Class to create a splash screen."""
-    def __init__(self, root):
-        self.splash = tk.Toplevel(root)
-        self.splash.title("Loading...")
-        self.splash.geometry("400x200")  # Set the size of the splash screen
-        self.splash.overrideredirect(True)  # Remove the title bar
-        self.center_window()
-
-        # Placeholder for splash screen content
-        self.label = tk.Label(self.splash, text="Loading Civic Builder...\nPlease wait.", font=("Arial", 16))
-        self.label.pack(expand=True)
-
-        # Show the splash screen
-        self.splash.after(3000, self.close)  # Close after 3 seconds
-
-    def center_window(self):
-        """Centers the splash screen on the screen."""
-        self.splash.update_idletasks()  # Update "requested size" from geometry manager
-        width = self.splash.winfo_width()
-        height = self.splash.winfo_height()
-        x = (self.splash.winfo_screenwidth() // 2) - (width // 2)
-        y = (self.splash.winfo_screenheight() // 2) - (height // 2)
-        self.splash.geometry(f'{width}x{height}+{x}+{y}')
-
-    def close(self):
-        """Close the splash screen."""
-        self.splash.destroy()
-
 class App:
-    def __init__(self, master, run_extraction_callback):
+    def __init__(self, master, run_extraction_callback=None):
         self.master = master
         self.master.title("Civic Builder")
 
@@ -46,6 +17,12 @@ class App:
         # Set the default window size and position
         self.master.geometry("600x400")  # Width x Height
         self.center_window()
+
+        # Placeholder for extraction callback; provide a default if none is passed
+        if run_extraction_callback:
+            self.run_extraction_callback = run_extraction_callback
+        else:
+            self.run_extraction_callback = self.default_extraction_callback
 
         # Load and display the placeholder image
         self.placeholder_image = tk.PhotoImage(file="civic_builder.png")  # Ensure this image is in the correct format
@@ -65,7 +42,6 @@ class App:
         self.model_label = tk.Label(master, text="Select a Model:")
         self.model_label.pack()
 
-        self.model_var = tk.IntVar()
         self.model_options = [
             "Roboflow default 2k iteration detection model.",
             "Roboflow optimized 5k iteration detection model. (India, Rural)",
@@ -75,14 +51,16 @@ class App:
             "Khartoum SpaceNet dataset model. (Middle East, Urban)",
         ]
         
-        self.model_dropdown = tk.OptionMenu(master, self.model_var, *self.model_options)
+        self.model_var = tk.StringVar()
+        self.model_var.set(self.model_options[0])
+        
+        self.model_dropdown = tk.OptionMenu(master, self.model_var, self.model_options)
         self.model_dropdown.pack(pady=5)
 
         # Feature selection
         self.feature_label = tk.Label(master, text="Select Feature to Extract:")
         self.feature_label.pack()
 
-        self.feature_var = tk.IntVar()
         self.feature_options = [
             "Building footprints",
             "Trees (Not implemented)",
@@ -90,7 +68,10 @@ class App:
             "Water (Not implemented)",
         ]
         
-        self.feature_dropdown = tk.OptionMenu(master, self.feature_var, *self.feature_options)
+        self.feature_var = tk.StringVar()
+        self.feature_var.set(self.feature_options[0])  # Set the default value
+        
+        self.feature_dropdown = tk.OptionMenu(master, self.feature_var, self.feature_options)
         self.feature_dropdown.pack(pady=5)
 
         # Input folder selection
@@ -147,27 +128,35 @@ class App:
 
     def run_feature_extraction(self):
         """Run the feature extraction process based on user inputs."""
-        model_selection = self.model_var.get() + 1  # Convert to index
-        extract_feature_int = self.feature_var.get()  # Already an index
+        # Retrieve selected model and feature by their names
+        selected_model_text = self.model_var.get()
+        selected_feature_text = self.feature_var.get()
         
-        if model_selection not in range(1, 7):
+        # Get the index of the selected model from the model options list
+        try:
+            model_selection = self.model_options.index(selected_model_text) + 1  # Convert to 1-based index
+        except ValueError:
             messagebox.showerror("Error", "Invalid model selection.")
             return
         
-        extract_feature = self.feature_options[extract_feature_int]
-        if extract_feature == "Trees (Not implemented)":
+        # Verify feature selection
+        if selected_feature_text not in self.feature_options:
+            messagebox.showerror("Error", "Invalid feature selection.")
+            return
+        
+        # Check if feature extraction is implemented for the selected feature
+        if selected_feature_text == "Trees (Not implemented)":
             messagebox.showerror("Error", "Feature extraction for trees is not implemented.")
             return
+        
+        # Run the extraction callback with selected model, feature, and folder
+        self.run_extraction_callback(model_selection, selected_feature_text, self.input_folder)
 
-        # Call the extraction function passed from main.py
-        self.run_extraction_callback(model_selection, extract_feature, self.input_folder)
 
     def open_help(self):
         """Open the local HTML documentation."""
-        # Construct the path to the documentation folder, assuming it's one level up
-        documentation_path = os.path.abspath('../documentation/index.html')  # Adjust the path to point one directory up
-        url = 'file:///' + documentation_path.replace('\\', '/')  # Ensure using forward slashes
-        print(f"Opening documentation at: {url}")  # Debugging line
+        documentation_path = os.path.abspath('../documentation/index.html')
+        url = 'file:///' + documentation_path.replace('\\', '/')
         webbrowser.open(url)
 
     def show_about(self):
@@ -177,6 +166,11 @@ class App:
     def exit_app(self):
         """Exit the application."""
         self.master.quit()
+
+    def default_extraction_callback(self, model_selection, extract_feature, input_folder):
+        """Default callback function if no extraction callback is provided."""
+        print(f"Running extraction with model: {model_selection}, feature: {extract_feature}, folder: {input_folder}")
+
 
 def run_app():
     """Run the Tkinter app."""
