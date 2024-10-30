@@ -1,33 +1,43 @@
-# Importing necessary modules
+# main.py
 
 import sys
-from user_interface import App  # Placeholder for the Tkinter UI module
+from user_interface import App  # Import the App class from the user_interface module
+import tkinter as tk
+from detect_buildings import extract_features  # Import the extract_features function
+import os
 
 def initialize_project():
     """
     Initialize the project by loading necessary configurations, data, or assets.
     """
     print("Initializing the project...")
-    # TODO: Add initialization code for loading configurations, models, or data
-    # Example:
-    # load_config()
-    # load_models()
-    pass
+    # Implement any necessary project initialization steps here
+
+def run_feature_extraction(model_selection, extract_feature, input_folder):
+    """
+    Wrapper to run the feature extraction process.
+    """
+    try:
+        extract_features(model_selection, extract_feature, input_folder)
+        print(f"Features of type {extract_feature} extracted successfully!")
+    except Exception as e:
+        print(f"Error during extraction: {e}")
 
 def main():
     """
     Main entry point for the Civic Builder: Procedural City Modeling project.
-    Handles project initialization and the user interface.
+    Handles project initialization and starts the user interface.
     """
     try:
         print("Starting Civic Builder: Procedural City Modeling...")
-        
+
         # Initialize the project
         initialize_project()
 
-        # Launch the user interface (Tkinter UI)
-        app = App()
-        app.run()  # Placeholder for your future UI code
+        # Set up the Tkinter root window
+        root = tk.Tk()
+        app = App(root, run_feature_extraction)  # Pass the extraction function to the UI
+        root.mainloop()  # Start the GUI event loop
 
     except KeyboardInterrupt:
         print("\nProject interrupted. Exiting...")

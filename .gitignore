@@ -7,6 +7,17 @@ __pycache__/
 *.so
 *.dylib
 
+# Image files are ignored as they have big filesize
+.jpg
+.jpeg
+.tga
+.tiff
+.png
+
+# Ignore build CV models.
+.pth
+
+
 # Ignore asset-heavy folders
 # Exclude large asset files like 3D models (e.g., .obj, .fbx) or textures for version control
 assets/     

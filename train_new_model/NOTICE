@@ -1,0 +1,9 @@
+This software includes code from the following repositories:
+
+1. Buildings Detection (Asv53/Buildings-detection-GeneralizedRCNN)
+   - GitHub URL: https://github.com/Asv53/Buildings-detection-GeneralizedRCNN
+   - Licensed under the Apache License 2.0.
+
+2. Detectron2 by Meta
+   - GitHub URL: https://github.com/facebookresearch/detectron2
+   - Licensed under the Apache License 2.0.

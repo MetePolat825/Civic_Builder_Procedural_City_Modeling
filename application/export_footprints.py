@@ -1,0 +1,1 @@
+# Logic on how to convert model export data to FBX or GeoJSON format.
