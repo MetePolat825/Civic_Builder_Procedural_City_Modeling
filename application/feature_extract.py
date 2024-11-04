@@ -1,1 +1,0 @@
-# file containing all logic for extraction of feature footprints

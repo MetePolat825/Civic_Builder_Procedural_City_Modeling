@@ -1,4 +1,5 @@
 # detect_builds.py
+# this file handles the extraction of data using the selected model
 
 import os
 import cv2
@@ -9,12 +10,13 @@ from detectron2.utils.visualizer import Visualizer, ColorMode
 from detectron2 import model_zoo
 from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
+from customtkinter import CTkProgressBar
 
 # Suppress specific warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 
-def extract_features(model_selection, extract_feature, input_folder):
+def extract_features(model_selection, extract_feature, input_folder,output_folder,progressbar):
     """
     Perform feature extraction from satellite images based on the selected model and feature type.
     
@@ -63,6 +65,10 @@ def extract_features(model_selection, extract_feature, input_folder):
     # Start time for prediction
     start_time = time.time()
 
+    count_of_images = len(os.listdir(input_folder))
+    weight_per_image = 1/count_of_images
+    progress_value = 0 # start progress from 0
+    
     # Iterate over each image file in the folder
     for image_file in os.listdir(input_folder):
         image_path = os.path.join(input_folder, image_file)
@@ -115,5 +121,8 @@ def extract_features(model_selection, extract_feature, input_folder):
         with open(obj_file_path, 'w') as obj_file:
             obj_file.write("\n".join(vertices) + "\n")
             obj_file.write("\n".join(obj_faces) + "\n")
+        
+        progress_value += weight_per_image
+        progressbar.set(progress_value)
 
     print(f"Extracted features of type {extract_feature} from {len(os.listdir(input_folder))} images in {time.time()-start_time:.2f} seconds.")

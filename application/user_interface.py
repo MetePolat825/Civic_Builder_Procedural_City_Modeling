@@ -1,180 +1,240 @@
 import os
 import webbrowser
-import tkinter as tk
-from tkinter import filedialog, messagebox
 import webbrowser  # For opening the local HTML documentation
 import time  # To handle splash screen timing
 import threading  # For running the splash screen in a separate thread
 
+import tkinter as tk
+from tkinter import filedialog, messagebox, StringVar
+import customtkinter as ctk
+
+from detect_buildings import extract_features
+
 class App:
-    def __init__(self, master, run_extraction_callback=None):
-        self.master = master
-        self.master.title("Civic Builder")
+    def __init__(self, root, run_extraction_callback=None):
+        self.root = root
+        self.root.title("Civic Builder")
 
         # Load and set the icon
-        self.set_icon()
+        #self.set_icon()
+
+        # Set default appearance mode
+        ctk.set_appearance_mode("dark")  # Let system control the theme by default
+        ctk.set_default_color_theme("dark-blue")  # Custom color theme for styling
+        
+        # pre set darkmode
+        #ctk.set_appearance_mode("dark")
+        #ctk.set_default_color_theme("dark-blue")
 
         # Set the default window size and position
-        self.master.geometry("600x400")  # Width x Height
-        self.center_window()
+        root.geometry("575x700")  # Width x Height
+        #self.center_window()
+        
+        # Sidebar Frame with brighter gray color
+        sidebar_frame = ctk.CTkFrame(root, width=150, fg_color=None, corner_radius=0, border_color="black",border_width=2)
+        sidebar_frame.grid(row=0, column=0, rowspan=3, sticky="nsew")
 
-        # Placeholder for extraction callback; provide a default if none is passed
-        if run_extraction_callback:
-            self.run_extraction_callback = run_extraction_callback
-        else:
-            self.run_extraction_callback = self.default_extraction_callback
+        # Sidebar toggle for light/dark mode
+        self.dark_mode_switch = ctk.CTkSwitch(sidebar_frame, text="Light Mode", command=self.toggle_mode)
+        self.dark_mode_switch.pack(pady=10, padx=10)
+        
+        # Add Help and About buttons in the sidebar
+        self.help_button = ctk.CTkButton(sidebar_frame, text="Documentation", command=self.open_help)
+        self.help_button.pack(pady=10,padx=10)
+
+        self.about_button = ctk.CTkButton(sidebar_frame, text="About", command=self.show_about)
+        self.about_button.pack(pady=10,padx=10)
+
+        # Add additional buttons or information to the sidebar
+        self.info_label = ctk.CTkLabel(sidebar_frame, text="Civic Builder v. 0.1", anchor="w")
+        self.info_label.pack(pady=10, padx=10)
+        
+        # define the frames
+        user_selections_frame = ctk.CTkFrame(root,border_color="black",border_width=2)        
+        run_extraction_frame = ctk.CTkFrame(root,border_color="black",border_width=2)        
+        extras_frame = ctk.CTkFrame(root,border_color="black",border_width=2)        
+        
+        # Pack the frames in the main layout
+        user_selections_frame.grid(row=0, column=1, pady=10, padx=10, sticky="ew")  
+        run_extraction_frame.grid(row=1, column=1, pady=10, padx=10, sticky="ew")
+        extras_frame.grid(row=2, column=1, pady=10, padx=10, sticky="ew") 
 
         # Load and display the placeholder image
-        self.placeholder_image = tk.PhotoImage(file="civic_builder.png")  # Ensure this image is in the correct format
-        self.image_label = tk.Label(master, image=self.placeholder_image)
-        self.image_label.pack(side=tk.RIGHT, padx=10, pady=10)
+        #self.placeholder_image = tk.PhotoImage(file="civic_builder.png")
+        #self.image_label = ctk.CTkLabel(master, image=self.placeholder_image)
+        #self.image_label.pack(side=ctk.RIGHT, padx=10, pady=10)
 
         # Description label
-        self.description_label = tk.Label(
-            master, 
+        self.description_label = ctk.CTkLabel(
+            user_selections_frame, 
             text="Civic Builder: Automate extraction of features from satellite imagery.", 
             wraplength=550, 
-            justify="center"
+            justify="center",
+            pady = 10
         )
-        self.description_label.pack(pady=10)
+        self.description_label.pack(padx=5, pady=10)
+              
+        # Model selection label
+        self.model_label = ctk.CTkLabel(user_selections_frame, text="Select a Computer Vision Model:")
+        self.model_label.pack(padx=5, pady=5)
 
-        # Model selection
-        self.model_label = tk.Label(master, text="Select a Model:")
-        self.model_label.pack()
-
+        # Model options
         self.model_options = [
             "Roboflow default 2k iteration detection model.",
-            "Roboflow optimized 5k iteration detection model. (India, Rural)",
-            "Paris SpaceNet dataset model. (Europe, Urban)",
-            "Shanghai SpaceNet dataset model. (Asia, Urban)",
-            "Las Vegas SpaceNet dataset model. (U.S.)",
-            "Khartoum SpaceNet dataset model. (Middle East, Urban)",
+            "Roboflow optimized 5k iteration detection model.(India, Rural)",
+            "Paris SpaceNet dataset model.(Europe, Urban)",
+            "Shanghai SpaceNet dataset model.(Asia, Urban)",
+            "Las Vegas SpaceNet dataset model.(U.S.)",
+            "Khartoum SpaceNet dataset model.(Middle East, Urban)",
         ]
-        
-        self.model_var = tk.StringVar()
-        self.model_var.set(self.model_options[0])
-        
-        self.model_dropdown = tk.OptionMenu(master, self.model_var, self.model_options)
+
+        # Dropdown variable for model selection
+        self.model_var = tk.StringVar(value=self.model_options[0])  # Set default value
+
+        # Dropdown menu for model selection
+        self.model_dropdown = ctk.CTkOptionMenu(
+            user_selections_frame,
+            variable=self.model_var,  # This holds the currently selected model
+            values=self.model_options   # Pass the list of model options directly
+        )
         self.model_dropdown.pack(pady=5)
 
-        # Feature selection
-        self.feature_label = tk.Label(master, text="Select Feature to Extract:")
-        self.feature_label.pack()
+        # Feature selection label
+        self.feature_label = ctk.CTkLabel(user_selections_frame, text="Select Feature to Extract:")
+        self.feature_label.pack(pady=5)
 
+        # Feature options
         self.feature_options = [
             "Building footprints",
             "Trees (Not implemented)",
             "Roads (Not implemented)",
             "Water (Not implemented)",
         ]
-        
-        self.feature_var = tk.StringVar()
-        self.feature_var.set(self.feature_options[0])  # Set the default value
-        
-        self.feature_dropdown = tk.OptionMenu(master, self.feature_var, self.feature_options)
+
+        # Dropdown variable for feature selection
+        self.feature_var = tk.StringVar(value=self.feature_options[0])  # Set default value
+
+        # Dropdown menu for feature selection
+        self.feature_dropdown = ctk.CTkOptionMenu(
+            user_selections_frame,
+            variable=self.feature_var,  # This holds the currently selected feature
+            values=self.feature_options   # Pass the list of feature options directly
+        )
         self.feature_dropdown.pack(pady=5)
+        
 
         # Input folder selection
-        self.input_label = tk.Label(master, text="Select Input Image Folder:")
+        self.input_label = ctk.CTkLabel(user_selections_frame, text="Select Input Images Folder:")
         self.input_label.pack(pady=5)
-
-        self.input_folder_button = tk.Button(master, text="Browse", command=self.select_input_folder)
+        
+        self.input_entry = ctk.CTkEntry(user_selections_frame, placeholder_text="Input Folder", width=300)
+        self.input_entry.pack(pady=5)
+        
+        self.input_folder_button = ctk.CTkButton(user_selections_frame, text="Browse", command=self.select_input_folder, width=300)
         self.input_folder_button.pack(pady=5)
 
-        # Run button
-        self.run_button = tk.Button(master, text="Run Feature Extraction", command=self.run_feature_extraction)
+        # Output folder selection
+        self.output_label = ctk.CTkLabel(user_selections_frame, text="Select Output Folder:")
+        self.output_label.pack(pady=5)
+        
+        self.output_entry = ctk.CTkEntry(user_selections_frame, placeholder_text="Output Folder", width=300)
+        self.output_entry.pack(pady=5)
+        
+        self.output_folder_button = ctk.CTkButton(user_selections_frame, text="Browse", command=self.select_output_folder, width=300)
+        self.output_folder_button.pack(pady=10)
+
+       # Run and extras
+        self.run_label = ctk.CTkLabel(run_extraction_frame, text="After setting options, run the extraction.", wraplength=550, pady=10)
+        self.run_label.pack(pady= 10,padx=10)
+        
+        self.run_button = ctk.CTkButton(run_extraction_frame, text="Run Feature Extraction", command=self.run_feature_extraction, fg_color="green")
         self.run_button.pack(pady=10)
+        
+        self.progressbar = ctk.CTkProgressBar(master=run_extraction_frame)
+        self.progressbar.pack(padx=20, pady=10)
+        self.progressbar.set(0)
+        self.bar_progress = 0
+        
+        
+        self.exit_button = ctk.CTkButton(extras_frame, text="Exit", command=self.exit_app)
+        self.exit_button.pack(pady=10)
 
-        # Exit button
-        self.exit_button = tk.Button(master, text="Exit", command=self.exit_app)
-        self.exit_button.pack(pady=5)
+    def toggle_mode(self):
+        """Toggle between dark and light modes."""
+        current_mode = ctk.get_appearance_mode()
+        ctk.set_appearance_mode("Light" if current_mode == "Dark" else "Dark")
 
-        # Help button
-        self.help_button = tk.Button(master, text="Help", command=self.open_help)
-        self.help_button.pack(pady=5)
+    def select_input_folder(self):
+        """Select input folder."""
+        folder = filedialog.askdirectory()
+        if folder:
+            self.input_entry.delete(0, tk.END)
+            self.input_entry.insert(0, folder)
 
-        # About button
-        self.about_button = tk.Button(master, text="About", command=self.show_about)
-        self.about_button.pack(pady=5)
-
-        # Status label
-        self.status_label = tk.Label(master, text="")
-        self.status_label.pack(pady=10)
-
-        # Initialize variables
-        self.input_folder = ""
-
+    def select_output_folder(self):
+        """Select output folder."""
+        folder = filedialog.askdirectory()
+        if folder:
+            self.output_entry.delete(0, tk.END)
+            self.output_entry.insert(0, folder)
+            
     def set_icon(self):
         """Set the window icon."""
         try:
-            self.master.iconbitmap("civic_builder.ico")  # Use .ico format for Windows
+            self.root.iconbitmap("civic_builder.ico")  # Use .ico format for Windows
             print("Icon set using .ico format")
         except Exception as e:
             print(f"Error setting icon: {e}")
 
-    def center_window(self):
-        """Centers the Tkinter window on the screen."""
-        self.master.update_idletasks()  # Update "requested size" from geometry manager
-        width = self.master.winfo_width()
-        height = self.master.winfo_height()
-        x = (self.master.winfo_screenwidth() // 2) - (width // 2)
-        y = (self.master.winfo_screenheight() // 2) - (height // 2)
-        self.master.geometry(f'{width}x{height}+{x}+{y}')
-
-    def select_input_folder(self):
-        """Open a dialog to select the input folder."""
-        self.input_folder = filedialog.askdirectory()
-        self.status_label.config(text=f"Selected folder: {self.input_folder}")
-
     def run_feature_extraction(self):
-        """Run the feature extraction process based on user inputs."""
-        # Retrieve selected model and feature by their names
-        selected_model_text = self.model_var.get()
-        selected_feature_text = self.feature_var.get()
+        """Run the feature extraction."""
+        model_selection = self.model_var.get()
+        extract_feature = self.feature_var.get()
+        input_folder = self.input_entry.get()
+        output_folder = self.output_entry.get()
         
-        # Get the index of the selected model from the model options list
+        # Disable the button and reset the progress bar
+        self.run_button.configure(state="disabled")
+        self.progressbar.set(0)
+        
+        # Create and start a new thread for the extraction process
+        extraction_thread = threading.Thread(
+            target=self.extract_features_in_thread,
+            args=(model_selection, extract_feature, input_folder, output_folder)
+        )
+        extraction_thread.start()
+        
+    def extract_features_in_thread(self, model_selection, extract_feature, input_folder, output_folder):
+        """Perform the feature extraction in a separate thread."""
         try:
-            model_selection = self.model_options.index(selected_model_text) + 1  # Convert to 1-based index
-        except ValueError:
-            messagebox.showerror("Error", "Invalid model selection.")
-            return
+            extract_features(model_selection, extract_feature, input_folder, output_folder, self.progressbar)
+        except Exception as e:
+            # Handle exceptions and inform the user
+            messagebox.showerror("Error", f"An error occurred: {e}")
+        finally:
+            # Re-enable the button once extraction is complete
+            self.run_button.configure(state="normal")        
         
-        # Verify feature selection
-        if selected_feature_text not in self.feature_options:
-            messagebox.showerror("Error", "Invalid feature selection.")
-            return
-        
-        # Check if feature extraction is implemented for the selected feature
-        if selected_feature_text == "Trees (Not implemented)":
-            messagebox.showerror("Error", "Feature extraction for trees is not implemented.")
-            return
-        
-        # Run the extraction callback with selected model, feature, and folder
-        self.run_extraction_callback(model_selection, selected_feature_text, self.input_folder)
-
-
     def open_help(self):
-        """Open the local HTML documentation."""
+        """Open documentation."""
         documentation_path = os.path.abspath('../documentation/index.html')
-        url = 'file:///' + documentation_path.replace('\\', '/')
-        webbrowser.open(url)
+        documentation_path = documentation_path.replace("\\", "/")
+        webbrowser.open(f'file:///{documentation_path}')
+
 
     def show_about(self):
-        """Show an about message."""
-        messagebox.showinfo("About", "Civic Builder: Automated feature extraction from satellite imagery.\nVersion: 0.1")
+        """Show about message."""
+        messagebox.showinfo("About", "Civic Builder: Version 0.1")
 
     def exit_app(self):
         """Exit the application."""
-        self.master.quit()
+        self.root.quit()
 
-    def default_extraction_callback(self, model_selection, extract_feature, input_folder):
-        """Default callback function if no extraction callback is provided."""
-        print(f"Running extraction with model: {model_selection}, feature: {extract_feature}, folder: {input_folder}")
 
 
 def run_app():
     """Run the Tkinter app."""
-    root = tk.Tk()
+    root = ctk.CTk()
 
     # Load the main app after a delay
     def load_main_app():
@@ -183,8 +243,5 @@ def run_app():
         app = App(root, run_extraction_callback=lambda model, feature, folder: print(f"Running extraction with {model}, {feature}, {folder}"))
         root.mainloop()
 
-    # Start loading the main app in a separate thread to keep the splash screen responsive
-    threading.Thread(target=load_main_app).start()
 
-if __name__ == "__main__":
-    run_app()
+

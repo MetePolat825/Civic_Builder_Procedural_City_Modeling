@@ -1,17 +1,23 @@
 # main.py
 
 import sys
-from user_interface import App  # Import the App class from the user_interface module
-import tkinter as tk
-from detect_buildings import extract_features  # Import the extract_features function
 import os
+import tkinter as tk
+import customtkinter as ctk
+
+from user_interface import App  # Import the App class from the user_interface module
+from detect_buildings import extract_features  # Import the extract_features function
+
 
 def initialize_project():
     """
     Initialize the project by loading necessary configurations, data, or assets.
     """
     print("Initializing the project...")
-    # Implement any necessary project initialization steps here
+    
+    # perform initial tests
+    #init_test()
+
 
 def run_feature_extraction(model_selection, extract_feature, input_folder):
     """
@@ -21,7 +27,7 @@ def run_feature_extraction(model_selection, extract_feature, input_folder):
         extract_features(model_selection, extract_feature, input_folder)
         print(f"Features of type {extract_feature} extracted successfully!")
     except Exception as e:
-        print(f"Error during extraction: {e}")
+        print(f"Terminated feature extraction due to error: {e}")
 
 def main():
     """
@@ -35,7 +41,7 @@ def main():
         initialize_project()
 
         # Set up the Tkinter root window
-        root = tk.Tk()
+        root = ctk.CTk()
         app = App(root, run_feature_extraction)  # Pass the extraction function to the UI
         root.mainloop()  # Start the GUI event loop
 
