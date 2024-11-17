@@ -11,12 +11,19 @@ from detect_buildings import extract_features  # Import the extract_features fun
 
 def initialize_project():
     """
-    Initialize the project by loading necessary configurations, data, or assets.
+    Initialize the project by loading necessary configurations, data, or assets. 
+    Additionally handle automated testing.
     """
     print("Initializing the project...")
     
-    # perform initial tests
+    # perform pre-start initial tests
     #init_test()
+    
+    # check external resources all loaded
+    
+    # check requirements exist with correct versions of over
+    
+    # check compatible environment
 
 
 def run_feature_extraction(model_selection, extract_feature, input_folder):
@@ -37,7 +44,7 @@ def main():
     try:
         print("Starting Civic Builder: Procedural City Modeling...")
 
-        # Initialize the project
+        # Initialize the project and perform initial tests.
         initialize_project()
 
         # Set up the Tkinter root window
@@ -46,10 +53,10 @@ def main():
         root.mainloop()  # Start the GUI event loop
 
     except KeyboardInterrupt:
-        print("\nProject interrupted. Exiting...")
+        print("\Keyboard interrupted initiatilization. Exiting...")
         sys.exit(0)
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"Terminated, error occurred when initializing Civic Builder: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
