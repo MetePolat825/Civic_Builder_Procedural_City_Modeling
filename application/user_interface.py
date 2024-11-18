@@ -16,6 +16,8 @@ from PIL import Image as PILImage, ImageTk
 
 from detect_buildings import extract_features
 
+export_post_process_algorithm = ""
+
 class App:
     def __init__(self, root, run_extraction_callback=None):
         self.root = root
@@ -30,11 +32,7 @@ class App:
 
         # Set the default window size and position
         root.geometry("1250x700")  # Width x Height
-        #self.center_window()
-        
-        # Placeholder for selected post-processing algorithm
-        self.post_process_algorithm = tk.StringVar()
-        
+        #self.center_window()        
         
         # Define the sidebar frame and other frames for each section
         self.sidebar_frame = ctk.CTkFrame(root, width=150, fg_color=None, corner_radius=0, border_color="black", border_width=2)
@@ -122,15 +120,15 @@ class App:
         current_mode = ctk.get_appearance_mode()
         ctk.set_appearance_mode("Light" if current_mode == "Dark" else "Dark")
         
-    def depopulate_frame(self, frame):
-        """Destroy all widgets in frame for redraw."""
+    def depopulate_frame(self, frame: ctk.CTkFrame):
+        """Destroy all widgets in a given ctk.CTkFrame (frame) parameter."""
         if frame:
             for widget in frame.winfo_children():
                 widget.destroy()  # Completely removes the widget from the frame
 
     def show_frame(self, frame):
-        """Hide all frames and display the specified frame."""
-        # Hide all frames
+        """Hide all opened frames and display the specified frame."""
+        # Hide all frames currently opened
         for f in self.all_frames:
             f.grid_forget()  # Unmap the frame from the grid system each time we redraw
 
@@ -165,8 +163,6 @@ class App:
                                                justify ="left")
         
         self.instructions_label.pack(anchor="w", padx=15, pady=5)
-
-
 
         # Model options
         self.model_options = [
@@ -260,7 +256,8 @@ class App:
     def show_paths_frame(self):
         """Show Input/Output Paths section."""
         
-        self.depopulate_frame(self.paths_frame)  # depopulate frame before redrawing
+        # Depopulate the frame to clear old content
+        self.depopulate_frame(self.paths_frame)
 
         # Create a frame for the left column (image)
         left_frame = ctk.CTkFrame(self.paths_frame)
@@ -278,66 +275,96 @@ class App:
         self.canvas_desc_label = ctk.CTkLabel(right_frame, text="While Civic Builder prefers formatted imagery with no annotations\nit is also possible to use images from various sources including Google Earth or GIS.", anchor="w", font=("Arial", 12))
         self.canvas_desc_label.pack(pady=10)
 
+        # Initialize paths if not set
+        if not hasattr(self, 'input_folder_path'):
+            self.input_folder_path = ""
+        if not hasattr(self, 'output_2d_folder_path'):
+            self.output_2d_folder_path = ""
+        if not hasattr(self, 'output_3d_folder_path'):
+            self.output_3d_folder_path = ""
+
         # Input folder selection
         self.input_label = ctk.CTkLabel(right_frame, text="Select Input Images Folder:")
         self.input_label.pack(pady=5)
-        
-        # Ensure self.input_folder_path persists
-        if not hasattr(self, 'input_folder_path'):
-            self.input_folder_path = ""  # Initialize if not already set
-        
-        # Entry for input folder path
+
         self.input_entry = ctk.CTkEntry(right_frame, placeholder_text="Input Folder", width=300)
-        self.input_entry.insert(0, self.input_folder_path)  # Set previously stored path (if any)
+        self.input_entry.insert(0, self.input_folder_path)
         self.input_entry.pack(pady=5)
-        
-        self.input_folder_button = ctk.CTkButton(right_frame, text="Browse for input folder...", command=self.select_input_folder, width=300)
+
+        self.input_folder_button = ctk.CTkButton(right_frame, text="Browse for input folder...", 
+                                                command=lambda: self.update_path("input"), width=300)
         self.input_folder_button.pack(pady=5)
 
-        # Output folder selection
-        self.output_label = ctk.CTkLabel(right_frame, text="Select Output Folder:")
-        self.output_label.pack(pady=5)
-        
-        # Ensure self.output_folder_path persists
-        if not hasattr(self, 'output_folder_path'):
-            self.output_folder_path = ""  # Initialize if not already set
-        
-        # Entry for output folder path
-        self.output_entry = ctk.CTkEntry(right_frame, placeholder_text="Output Folder", width=300)
-        self.output_entry.insert(0, self.output_folder_path)  # Set previously stored path (if any)
-        self.output_entry.pack(pady=5)
-        
-        self.output_folder_button = ctk.CTkButton(right_frame, text="Browse for output folder...", command=self.select_output_folder, width=300)
-        self.output_folder_button.pack(pady=10)
+        # Output folder for Annotated 2D Images
+        self.output_2d_label = ctk.CTkLabel(right_frame, text="Select Output Folder for Annotated 2D Images:")
+        self.output_2d_label.pack(pady=5)
+
+        self.output_2d_entry = ctk.CTkEntry(right_frame, placeholder_text="Output 2D Folder", width=300)
+        self.output_2d_entry.insert(0, self.output_2d_folder_path)
+        self.output_2d_entry.pack(pady=5)
+
+        self.output_2d_folder_button = ctk.CTkButton(right_frame, text="Browse for 2D output folder...", 
+                                                    command=lambda: self.update_path("output_2d"), width=300)
+        self.output_2d_folder_button.pack(pady=5)
+
+        # Output folder for 3D Footprint OBJ Files
+        self.output_3d_label = ctk.CTkLabel(right_frame, text="Select Output Folder for 3D Footprint OBJ Files:")
+        self.output_3d_label.pack(pady=5)
+
+        self.output_3d_entry = ctk.CTkEntry(right_frame, placeholder_text="Output 3D Folder", width=300)
+        self.output_3d_entry.insert(0, self.output_3d_folder_path)
+        self.output_3d_entry.pack(pady=5)
+
+        self.output_3d_folder_button = ctk.CTkButton(right_frame, text="Browse for 3D output folder...", 
+                                                    command=lambda: self.update_path("output_3d"), width=300)
+        self.output_3d_folder_button.pack(pady=10)
 
         # Help button for documentation
-        help_button = ctk.CTkButton(right_frame, text="💡 Need Help? Open Imports/Outputs Documentation Here... 💡", command=lambda: self.open_help("import_imagery.html"), font=("Arial", 12))
+        help_button = ctk.CTkButton(right_frame, text="💡 Need Help? Open Imports/Outputs Documentation Here... 💡", 
+                                    command=lambda: self.open_help("import_imagery.html"), font=("Arial", 12))
         help_button.pack(pady=10)
-        
-        # Left side image (Input example) - Create the canvas to show the visualization (if relevant)
+
+        # Left side image (Input example)
         self.canvas_desc_label_left = ctk.CTkLabel(left_frame, text="Examples of Valid Input Images:\nSatellite Imagery", font=("Arial", 14))
         self.canvas_desc_label_left.pack(pady=10)
 
         self.canvas_left = ctk.CTkCanvas(left_frame, width=300, height=300, bg="white")
         self.canvas_left.pack(pady=10)
 
-        img_left = tk.PhotoImage(file="media/inputoutput_example_1.png")  # Path to the left image
-        self.canvas_left.create_image(150, 150, image=img_left)  # Adjust the coordinates for center positioning
-        self.canvas_left.image = img_left  # Keep a reference to the image
+        img_left = tk.PhotoImage(file="media/inputoutput_example_1.png")
+        self.canvas_left.create_image(150, 150, image=img_left)
+        self.canvas_left.image = img_left
 
-        # Right side image (Output example) - Create the canvas to show the output visualization (if relevant)
+        # Right side image (Output example)
         self.canvas_desc_label_right = ctk.CTkLabel(left_frame, text="Examples of Valid Input Images:\nGoogle Maps Screenshots", font=("Arial", 14))
         self.canvas_desc_label_right.pack(pady=10)
 
         self.canvas_right = ctk.CTkCanvas(left_frame, width=300, height=300, bg="white")
         self.canvas_right.pack(pady=10)
 
-        img_right = tk.PhotoImage(file="media/inputoutput_example_2.png")  # Path to the right image
-        self.canvas_right.create_image(150, 150, image=img_right)  # Adjust the coordinates for center positioning
-        self.canvas_right.image = img_right  # Keep a reference to the image
+        img_right = tk.PhotoImage(file="media/inputoutput_example_2.png")
+        self.canvas_right.create_image(150, 150, image=img_right)
+        self.canvas_right.image = img_right
 
         # Show the updated paths frame
         self.show_frame(self.paths_frame)
+
+    def update_path(self, path_type):
+        """Update the path for input or output folders."""
+        folder = tk.filedialog.askdirectory()
+        if folder:  # Only update if a folder is selected
+            if path_type == "input":
+                self.input_folder_path = folder
+                self.input_entry.delete(0, "end")
+                self.input_entry.insert(0, self.input_folder_path)
+            elif path_type == "output_2d":
+                self.output_2d_folder_path = folder
+                self.output_2d_entry.delete(0, "end")
+                self.output_2d_entry.insert(0, self.output_2d_folder_path)
+            elif path_type == "output_3d":
+                self.output_3d_folder_path = folder
+                self.output_3d_entry.delete(0, "end")
+                self.output_3d_entry.insert(0, self.output_3d_folder_path)
 
     def show_post_processing_frame(self):
         """Show Post Processing Configuration and Visualization."""
@@ -362,13 +389,14 @@ class App:
         self.instructions_label.pack(anchor="w", padx=5, pady=1)
         self.instructions_label = ctk.CTkLabel(right_frame, text="Algorithms are suited to different goals, with varying levels of detail.", font=("Arial", 12))
         self.instructions_label.pack(anchor="w", padx=5, pady=1)
-        
+
         # Dropdown for contour post-processing algorithms in the right frame
         self.post_process_options = [
             "Simplify Contours",
             "Smooth Contours",
             "Fill Holes",
-            "Bounding Boxes"
+            "Bounding Boxes",
+            "Convex Hulls"  # New option added
         ]
         
         # Ensure self.post_process_algorithm is initialized once, and retain the last selection
@@ -381,16 +409,27 @@ class App:
             variable=self.post_process_algorithm,  # This holds the currently selected algorithm
             values=self.post_process_options  # Pass the list of algorithm options directly
         )
+
         self.post_process_dropdown.pack(pady=10)
 
-            # Add labels for algorithm descriptions in the right frame
+        # Add labels for algorithm descriptions in the right frame
         algorithm_descriptions = [
-            ("Simplify Contours", "Feature: Reduces the number of points in the contour, making it simpler and more efficient.\nCons: Gets rid of sharp."),
-            ("Smooth Contours", "Feature: Smoothens the contour to reduce jagged edges and create a more natural shape.\nCons: High geometry."),
-            ("Fill Holes", "Feature: Fills any holes inside the contours to create closed shapes.\nCons: Loses small details."),
-            ("Bounding Boxes", "Feature: Creates bounding boxes around each detected contour for easier identification.\nCons: Gets rid of orientation/rotation.")
+            ("Simplify Contours", 
+            "Feature: Reduces the number of points in the contour, making it simpler and more efficient.\nCons: May remove sharp corners."),
+            
+            ("Smooth Contours", 
+            "Feature: Smoothens the contour to reduce jagged edges and create a more natural shape.\nCons: May cause some loss of sharp features."),
+            
+            ("Fill Holes", 
+            "Feature: Fills any holes inside the contours to create closed shapes.\nCons: May lose small details or features inside the contours."),
+            
+            ("Bounding Boxes", 
+            "Feature: Creates bounding boxes around each detected contour for easier identification.\nCons: Gets rid of orientation/rotation and fine details."),
+            
+            ("Convex Hulls", 
+            "Feature: Creates a convex hull around the contour, providing a simple boundary around the detected object.\nCons: May not follow the shape's exact contours, leading to loss of intricate details.")
         ]
-
+        
         # Display descriptions of algorithms in the right frame
         for title, description in algorithm_descriptions:
             title_label = ctk.CTkLabel(right_frame, text="Algorithm: "+title, font=("Arial", 14, "bold"))
@@ -399,7 +438,8 @@ class App:
             description_label = ctk.CTkLabel(right_frame, text=description, font=("Arial", 12))
             description_label.pack(anchor="w", padx=20, pady=5)
             
-        help_button = ctk.CTkButton(right_frame, text="💡 Need Help? Open Post Processing Documentation Here... 💡", command=lambda: self.open_help("post_processing.html"),font=("Arial", 12))
+        help_button = ctk.CTkButton(right_frame, text="💡 Need Help? Open Post Processing Documentation Here... 💡", 
+                                    command=lambda: self.open_help("post_processing.html"), font=("Arial", 12))
         help_button.pack(pady=20)
 
         self.canvas_label = ctk.CTkLabel(left_frame, text="Example output of latest run:", font=("Arial", 14,"bold"))
@@ -407,7 +447,6 @@ class App:
         
         self.canvas_desc_label = ctk.CTkLabel(left_frame, text="Post processed representation of the latest run of Civic Builder.", font=("Arial", 12))
         self.canvas_desc_label.pack(pady=10)
-
 
         # Create the canvas to show the visualization of contours (in the left frame)
         self.canvas = ctk.CTkCanvas(left_frame, width=500, height=500, bg="white")
@@ -418,7 +457,7 @@ class App:
 
         # Display the post-processing frame
         self.show_frame(self.post_processing_frame)
-    
+
 
     def show_run_frame(self):
         """Show Run Extraction section."""
@@ -506,7 +545,7 @@ class App:
             messagebox.showerror("Error", "Detection model and target feature must be selected!")
             return  # Stop further execution of the function
         
-        if not self.input_entry or not self.output_entry or self.input_entry == "" or self.output_entry == "":
+        if not self.input_entry or not self.output_2d_entry or not self.output_3d_entry:
             # Show a popup message if at least one of the folders is not selected
             messagebox.showerror("Error", "Both input and output folders must be selected!")
             return  # Stop further execution of the function
@@ -514,13 +553,19 @@ class App:
         model_selection = self.model_var.get()
         extract_feature = self.feature_var.get()
         input_folder = self.input_entry.get()
-        output_folder = self.output_entry.get()
+        output_2d_folder = self.output_2d_entry.get()
+        output_3d_folder = self.output_3d_entry.get()
+
+        # set global variable to use in detect_buildings.py
+        export_post_process_algorithm = self.post_process_algorithm.get()
         
         print("======\nRunning feature extraction with the following:\n======",
               "\nModel selection --> ",model_selection,
-              "\nExtract feature -->", extract_feature,
-              "\nInput folder -->",input_folder,
-              "\nOutput_folder -->",output_folder)
+              "\nExtract feature --> ", extract_feature,
+              "\nInput folder --> ",input_folder,
+              "\nOutput_2d_folder --> ",output_2d_folder,
+              "\nOutput_3d_folder --> ",output_3d_folder,
+              "\nPost Processing: --> ",export_post_process_algorithm)
         
         # Disable the button and reset the progress bar
         self.run_button.configure(state="disabled")
@@ -529,14 +574,14 @@ class App:
         # Create and start a new thread for the extraction process
         extraction_thread = threading.Thread(
             target=self.extract_features_in_thread,
-            args=(model_selection, extract_feature, input_folder, output_folder)
+            args=(model_selection, extract_feature, input_folder, output_2d_folder,output_3d_folder,export_post_process_algorithm)
         )
         extraction_thread.start()
         
-    def extract_features_in_thread(self, model_selection, extract_feature, input_folder, output_folder):
+    def extract_features_in_thread(self, model_selection, extract_feature, input_folder,output_2d_folder,output_3d_folder,export_post_process_algorithm):
         """Perform the feature extraction in a separate thread."""
         try:
-            extract_features(model_selection, extract_feature, input_folder, output_folder, self.progressbar)
+            extract_features(model_selection, extract_feature, input_folder, output_2d_folder,output_3d_folder, export_post_process_algorithm,self.progressbar)
         except Exception as e:
             # Handle exceptions and inform the user
             messagebox.showerror("Error", f"An error occurred: {e}")
@@ -549,7 +594,6 @@ class App:
         documentation_path = os.path.abspath('../documentation/'+ page_name)
         documentation_path = documentation_path.replace("\\", "/")
         webbrowser.open(f'file:///{documentation_path}')
-
 
     def show_about(self):
         """Show about message."""
@@ -601,8 +645,7 @@ class App:
     def load_image(self):
         """Load an example contour image to display."""
         # Get the path to the first file in the 'annotated_output_images' folder in the current directory
-        folder_path = os.path.join(os.path.dirname(__file__), 'input_output_files/annotated_output_images')
-        example_image_path = os.path.join(folder_path, sorted(os.listdir(folder_path))[0]) if os.listdir(folder_path) else None
+        example_image_path = 'media/detection_annotation_example.jpg'
 
         img = cv2.imread(example_image_path)
 
@@ -617,37 +660,6 @@ class App:
 
         # Display the image on canvas
         self.canvas.create_image(0, 0, anchor='nw', image=self.img_tk)
-
-    def apply_post_processing(self):
-        """Apply the selected post-processing algorithm to the contours."""
-        selected_algorithm = self.post_process_algorithm.get()
-
-        # Apply selected post-processing algorithm (you need to implement the actual processing logic)
-        # For example, if 'Simplify Contours' is selected, apply cv2.approxPolyDP to simplify the contour
-        if selected_algorithm == "Simplify Contours":
-            self.simplify_contours()
-        elif selected_algorithm == "Smooth Contours":
-            self.smooth_contours()
-        elif selected_algorithm == "Fill Holes":
-            self.fill_holes()
-
-    def simplify_contours(self):
-        """Simplify the contours using cv2.approxPolyDP."""
-        print("Simplifying contours...")
-        # Add logic to simplify contours here
-        pass
-
-    def smooth_contours(self):
-        """Smooth the contours using Gaussian Blur or another method."""
-        print("Smoothing contours...")
-        # Add logic to smooth contours here
-        pass
-
-    def fill_holes(self):
-        """Fill holes in the contours (if applicable)."""
-        print("Filling holes in contours...")
-        # Add logic to fill holes here
-        pass
 
 def run_app():
     """Run the Tkinter app."""

@@ -1,6 +1,3 @@
-# detect_builds.py
-# this file handles the extraction of data using the selected model
-
 import os
 import cv2
 import time
@@ -12,11 +9,51 @@ from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
 from customtkinter import CTkProgressBar
 
+from post_processing import simplify_contours, smooth_contours, fill_holes, bounding_boxes, convex_hulls # use for user selection of post processing algorithm
+
 # Suppress specific warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 
-def extract_features(model_selection, extract_feature, input_folder,output_folder,progressbar):
+# Mapping of imported post processing algorithms for user selections in the GUI
+POST_PROCESSING_ALGORITHMS = {
+    "Simplify Contours": simplify_contours,
+    "Smooth Contours": smooth_contours,
+    "Fill Holes": fill_holes,
+    "Bounding Boxes": bounding_boxes,
+    "Convex Hulls": convex_hulls
+}
+
+def process_contours(mask, selected_algorithm):
+    # Get contours from the mask
+    contours, _ = cv2.findContours(mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    # Apply the selected post-processing algorithm
+    if selected_algorithm in POST_PROCESSING_ALGORITHMS:
+        contours = POST_PROCESSING_ALGORITHMS[selected_algorithm](contours)
+    else:
+        raise ValueError(f"Unknown algorithm: {selected_algorithm}")
+
+    return contours
+
+def flatten_contours(contours):
+    """
+    Ensure that contours are laid flat on the XY plane
+    (by ensuring all Z values are zero, without additional rotations).
+    """
+    flattened_contours = []
+    for contour in contours:
+        # Ensure that all Z values are 0, leaving the contour in its original orientation
+        flattened_contour = []
+        for pt in contour:
+            # Simply set the Z coordinate to 0 to lay it flat on the XY plane
+            flattened_contour.append([pt[0][0], pt[0][1], 0])
+
+        flattened_contours.append(np.array(flattened_contour))
+    
+    return flattened_contours
+
+def extract_features(model_selection, extract_feature, input_folder, output_2d_folder, output_3d_folder, export_post_process_algorithm, progressbar):
     """
     Perform feature extraction from satellite images based on the selected model and feature type.
     
@@ -52,9 +89,9 @@ def extract_features(model_selection, extract_feature, input_folder,output_folde
     # Initialize the predictor
     predictor = DefaultPredictor(cfg)
 
-    # Create output folders
-    output_folder = "./input_output_files/annotated_output_images"
-    obj_folder = "./input_output_files/output_obj_files"
+    # Create output folders. Replace with custom paths later.
+    output_folder = output_2d_folder
+    obj_folder = output_3d_folder
     os.makedirs(output_folder, exist_ok=True)
     os.makedirs(obj_folder, exist_ok=True)
 
@@ -66,11 +103,12 @@ def extract_features(model_selection, extract_feature, input_folder,output_folde
     start_time = time.time()
 
     count_of_images = len(os.listdir(input_folder))
-    weight_per_image = 1/count_of_images
-    progress_value = 0 # start progress from 0
+    weight_per_image = 1 / count_of_images
+    progress_value = 0  # start progress from 0
     
     # Iterate over each image file in the folder
     for image_file in os.listdir(input_folder):
+        print("Processing image...")
         image_path = os.path.join(input_folder, image_file)
         img = cv2.imread(image_path)
 
@@ -82,7 +120,7 @@ def extract_features(model_selection, extract_feature, input_folder,output_folde
         out = visualizer.draw_instance_predictions(outputs["instances"].to("cpu"))
 
         # Save annotated image
-        output_path = os.path.join(output_folder, f"{os.path.splitext(image_file)[0]}_annotated.jpg")
+        output_path = os.path.join(output_2d_folder, f"{os.path.splitext(image_file)[0]}_annotated.jpg")
         cv2.imwrite(output_path, out.get_image()[:, :, ::-1])  # Convert RGB to BGR for OpenCV and save
 
         # Create .obj file for all detected buildings in this image
@@ -96,23 +134,25 @@ def extract_features(model_selection, extract_feature, input_folder,output_folde
         for i in range(len(instances)):
             if instances.scores[i] >= 0.5:  # Filter out low-confidence detections
                 mask = masks[i]
-                contours, _ = cv2.findContours(mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                # Fetch the selected algorithm from the user interface 
+                selected_algorithm = export_post_process_algorithm
+                
+                # Process contours with the selected algorithm
+                processed_contours = process_contours(mask, selected_algorithm)
 
-                for contour in contours:
-                    # Simplify the contour to reduce points and create sharper edges
-                    epsilon = 0.01 * cv2.arcLength(contour, True)  # Adjust epsilon for more or less simplification
-                    simplified_contour = cv2.approxPolyDP(contour, epsilon, True)
+                # Step 2: Flatten the contours to ensure they lie flat on the XY plane (Z = 0)
+                flattened_contours = flatten_contours(processed_contours)
 
-                    # Create vertices in the OBJ format (x, y, z)
-                    for pt in simplified_contour:
-                        vertices.append(f"v {pt[0][0]} {pt[0][1]} 0")  # Assuming z=0 for 2D representation
+                for contour in flattened_contours:
+                    # For each contour, create a single ngon
+                    face = "f " + " ".join(str(vertex_index + idx) for idx in range(len(contour)))
+                    obj_faces.append(face)
 
-                    # Create faces based on the vertices added
-                    for j in range(1, len(simplified_contour) - 1):
-                        obj_faces.append(f"f {vertex_index} {vertex_index + j} {vertex_index + j + 1}")
+                    # Add vertices for the current contour
+                    for pt in contour:
+                        vertices.append(f"v {pt[0]} {pt[1]} 0")  # Set Z to 0
 
-                    # Update vertex index for the next contour
-                    vertex_index += len(simplified_contour)
+                    vertex_index += len(contour)
 
         # Write to a single .obj file for this image
         obj_filename = f"{os.path.splitext(image_file)[0]}.obj"
@@ -124,5 +164,7 @@ def extract_features(model_selection, extract_feature, input_folder,output_folde
         
         progress_value += weight_per_image
         progressbar.set(progress_value)
+        
+        print("Finished processing image...")
 
     print(f"Extracted features of type {extract_feature} from {len(os.listdir(input_folder))} images in {time.time()-start_time:.2f} seconds.")
