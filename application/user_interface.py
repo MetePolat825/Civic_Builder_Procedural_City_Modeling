@@ -1,25 +1,21 @@
-import os
-import webbrowser  # For opening the local HTML documentation
-import threading  # For running the UI in a separate thread to avoid freezing
+from os import path, listdir
+from webbrowser import open  # For opening the local HTML documentation
+from threading import Thread  # For running the UI in a separate thread to avoid freezing
 import sys
-import time
 
 import tkinter as tk
-from tkinter import filedialog, messagebox
 import customtkinter as ctk
 
-import cv2
-import numpy as np
+from cv2 import imread, cvtColor, COLOR_BGR2RGB
 
 from PIL import Image as PILImage, ImageTk
-
 
 from detect_buildings import extract_features
 
 export_post_process_algorithm = ""
 
 class App:
-    def __init__(self, root, run_extraction_callback=None):
+    def __init__(self, root):
         self.root = root
         self.root.title("Civic Builder")
 
@@ -43,7 +39,7 @@ class App:
         self.all_frames = [self.detection_frame,self.paths_frame,self.post_processing_frame,self.run_frame]
         
         # Load the image using PIL
-        logo_path = os.path.join(os.path.dirname(__file__), 'media', 'civic_builder.png')
+        logo_path = path.join(path.dirname(__file__), 'media', 'civic_builder.png')
         pil_image = PILImage.open(logo_path)
         
         # Resize the image to 50% of its original size
@@ -80,7 +76,7 @@ class App:
         self.post_processing_button = ctk.CTkButton(self.sidebar_frame, text="🔧 Post Processing", command=self.show_post_processing_frame)
         self.post_processing_button.pack(pady=10, padx=10, fill="x")
 
-        self.run_button = ctk.CTkButton(self.sidebar_frame, text="▶️ Run Extraction", command=self.show_run_frame)
+        self.run_button = ctk.CTkButton(self.sidebar_frame, text="⏯️ Run Extraction", command=self.show_run_frame)
         self.run_button.pack(pady=10, padx=10, fill="x")
 
         self.linebreak = ctk.CTkLabel(self.sidebar_frame, text=" ")
@@ -95,7 +91,7 @@ class App:
 
         # Sidebar toggle for light/dark mode
         self.dark_mode_switch = ctk.CTkSwitch(self.sidebar_frame, text="Light Mode", command=self.toggle_mode)
-        self.dark_mode_switch.pack(pady=10, padx=10, fill="x")
+        self.dark_mode_switch.pack(pady=10, padx=60, fill="x",anchor="center")
 
         # Exit Button with Red Background
         self.exit_button = ctk.CTkButton(self.sidebar_frame, text="Quit to Desktop", command=self.exit_app, fg_color="red")
@@ -231,24 +227,38 @@ class App:
         # Create the canvas to show the visualization (if relevant) on the left side
         self.canvas = ctk.CTkCanvas(right_frame, width=500, height=500, bg="white")
         self.canvas.pack(pady=10)
-        
-        img = tk.PhotoImage(file="media/detection_example.png")
-        self.canvas.create_image(400, 400, image=img)  # Adjust coordinates as needed
-        self.canvas.image = img
+
+        # Load the image using PIL to avoid zooming issues
+        img_path = "media/detection_example.png"
+        pil_img = PILImage.open(img_path)
+        tk_img = ImageTk.PhotoImage(pil_img)
+
+        # Calculate the center coordinates for placing the image
+        canvas_width = 500  # Adjust this based on your canvas width
+        canvas_height = 500  # Adjust this based on your canvas height
+        img_width, img_height = pil_img.size
+        x = (canvas_width - img_width) // 2
+        y = (canvas_height - img_height) // 2
+
+        # Create the image on the canvas
+        self.canvas.create_image(x, y, anchor="nw", image=tk_img)  # anchor="nw" aligns the image to the northwest corner
+
+        # Keep a reference to the image to prevent garbage collection
+        self.canvas.image = tk_img
 
         # Display the detection frame
         self.show_frame(self.detection_frame)
         
     def select_input_folder(self):
         """Select input folder."""
-        folder = filedialog.askdirectory()
+        folder = tk.filedialog.askdirectory()
         if folder:
             self.input_entry.delete(0, tk.END)
             self.input_entry.insert(0, folder)
 
     def select_output_folder(self):
         """Select output folder."""
-        folder = filedialog.askdirectory()
+        folder = tk.filedialog.askdirectory()
         if folder:
             self.output_entry.delete(0, tk.END)
             self.output_entry.insert(0, folder)
@@ -458,7 +468,6 @@ class App:
         # Display the post-processing frame
         self.show_frame(self.post_processing_frame)
 
-
     def show_run_frame(self):
         """Show Run Extraction section."""
         
@@ -510,17 +519,19 @@ class App:
 
     def redirect_output_to_log(self):
         """Redirect the print output to the log window (Text widget)."""
-        
+
         class LogRedirector:
             def __init__(self, widget):
                 self.widget = widget
 
             def write(self, message):
                 """Write the message to the Text widget."""
-                self.widget.config(state=tk.NORMAL)  # Enable editing to insert text
-                self.widget.insert(tk.END, message)  # Insert the message
-                self.widget.yview(tk.END)  # Scroll to the end to show the latest log
-                self.widget.config(state=tk.DISABLED)  # Disable editing
+                # Check if the message is from pytest
+                if not message.startswith("INTERNALERROR>") and not message.startswith("ERROR>") and not message.startswith("WARN>") and not message.startswith("AssertionError"):
+                    self.widget.config(state=tk.NORMAL)  # Enable editing to insert text
+                    self.widget.insert(tk.END, message)  # Insert the message
+                    self.widget.yview(tk.END)  # Scroll to the end to show the latest log
+                    self.widget.config(state=tk.DISABLED)  # Disable editing
 
             def flush(self):
                 pass  # Required for compatibility with the print() function, but we don't need to do anything here
@@ -539,15 +550,17 @@ class App:
 
     def run_feature_extraction(self):
         """Run the feature extraction."""
+        
+        #pre_run_test()  # Run the pre-run test
 
         if not self.model_var or not self.feature_var:
             # Show a popup message if model or feature have not been selected
-            messagebox.showerror("Error", "Detection model and target feature must be selected!")
+            tk.messagebox.showerror("Error", "Detection model and target feature must be selected!")
             return  # Stop further execution of the function
         
         if not self.input_entry or not self.output_2d_entry or not self.output_3d_entry:
             # Show a popup message if at least one of the folders is not selected
-            messagebox.showerror("Error", "Both input and output folders must be selected!")
+            tk.messagebox.showerror("Error", "Both input and output folders must be selected!")
             return  # Stop further execution of the function
         
         model_selection = self.model_var.get()
@@ -559,20 +572,43 @@ class App:
         # set global variable to use in detect_buildings.py
         export_post_process_algorithm = self.post_process_algorithm.get()
         
-        print("======\nRunning feature extraction with the following:\n======",
+        errors = []
+        if not input_folder:
+            errors.append("Input folder not selected. Please select input folder before running extraction.")
+        elif not path.isdir(input_folder):
+            errors.append(f"Selected input folder path is invalid: {input_folder}")
+            
+        if not output_2d_folder:
+            errors.append("Output 2D folder not selected. Please select output annotations folder before running extraction.")
+        elif not path.isdir(output_2d_folder):
+            errors.append(f"Selected output 2D folder path is invalid: {output_2d_folder}")
+            
+        if not output_3d_folder:
+            errors.append("Output 3D folder not selected. Please select output geometry folder before running extraction.")
+        elif not path.isdir(output_3d_folder):
+            errors.append(f"Selected output 3D folder path is invalid: {output_3d_folder}")
+            
+        if errors:
+            print("======\nWarning! Encountered errors when running:\n======")
+            for error in errors:
+                print(f"ERROR: {error}")
+            return
+        
+        print("======\nSelected Parameters:\n======",
               "\nModel selection --> ",model_selection,
               "\nExtract feature --> ", extract_feature,
               "\nInput folder --> ",input_folder,
               "\nOutput_2d_folder --> ",output_2d_folder,
               "\nOutput_3d_folder --> ",output_3d_folder,
-              "\nPost Processing: --> ",export_post_process_algorithm)
+              "\nPost Processing: --> ",export_post_process_algorithm,
+              "\n======\nRunning feature extraction...\n======\n")
         
         # Disable the button and reset the progress bar
         self.run_button.configure(state="disabled")
         self.progressbar.set(0)
         
         # Create and start a new thread for the extraction process
-        extraction_thread = threading.Thread(
+        extraction_thread = Thread(
             target=self.extract_features_in_thread,
             args=(model_selection, extract_feature, input_folder, output_2d_folder,output_3d_folder,export_post_process_algorithm)
         )
@@ -584,16 +620,16 @@ class App:
             extract_features(model_selection, extract_feature, input_folder, output_2d_folder,output_3d_folder, export_post_process_algorithm,self.progressbar)
         except Exception as e:
             # Handle exceptions and inform the user
-            messagebox.showerror("Error", f"An error occurred: {e}")
+            tk.messagebox.showerror("Error", f"An error occurred: {e}")
         finally:
             # Re-enable the button once extraction is complete
             self.run_button.configure(state="normal")        
         
     def open_help(self,page_name ="index.html"):
         """Open documentation given a specified page."""
-        documentation_path = os.path.abspath('../documentation/'+ page_name)
+        documentation_path = path.abspath('../documentation/'+ page_name)
         documentation_path = documentation_path.replace("\\", "/")
-        webbrowser.open(f'file:///{documentation_path}')
+        open(f'file:///{documentation_path}')
 
     def show_about(self):
         """Show about message."""
@@ -637,20 +673,31 @@ class App:
         # Bring the window to the front and make it focused
         self.about_window.lift()
         self.about_window.focus_force()
-
+        
     def exit_app(self):
         """Exit the application."""
         self.root.quit()
         
     def load_image(self):
-        """Load an example contour image to display."""
-        # Get the path to the first file in the 'annotated_output_images' folder in the current directory
+        """Load the latest contour image to display from the previously selected directory."""
+        # Fallback, get the path to the first file in the 'output_2d_folder_path' directory
         example_image_path = 'media/detection_annotation_example.jpg'
+        image_path = example_image_path
 
-        img = cv2.imread(example_image_path)
+        if path.exists(self.output_2d_folder_path):
+            files = [f for f in listdir(self.output_2d_folder_path) if path.isfile(path.join(self.output_2d_folder_path, f))]
+            if files:
+                image_path = path.join(self.output_2d_folder_path, files[0])
+            else:
+                print(f"No images found in directory: {self.output_2d_folder_path}")
+        else:
+            print(f"Directory not found: {self.output_2d_folder_path}")
+            
+
+        img = imread(image_path)
 
         # Convert to RGB (from BGR used by OpenCV)
-        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img_rgb = cvtColor(img, COLOR_BGR2RGB)
 
         # Convert to PIL Image
         img_pil = PILImage.fromarray(img_rgb)
@@ -660,17 +707,3 @@ class App:
 
         # Display the image on canvas
         self.canvas.create_image(0, 0, anchor='nw', image=self.img_tk)
-
-def run_app():
-    """Run the Tkinter app."""
-    root = ctk.CTk()
-
-    # Load the main app after a delay
-    def load_main_app():
-
-        # Create and show the main application window
-        app = App(root, run_extraction_callback=lambda model, feature, folder: print(f"Running extraction with {model}, {feature}, {folder}"))
-        root.mainloop()
-
-
-

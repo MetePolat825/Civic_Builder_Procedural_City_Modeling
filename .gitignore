@@ -1,3 +1,15 @@
+# Build files
+application/_internal/
+application/config/
+application/input_output_files/
+application/logs/
+
+# Ignore built application copies.
+*.exe
+
+# Ignore build CV models.
+.pth
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -7,16 +19,18 @@ __pycache__/
 *.so
 *.dylib
 
+# Ignore Blender files
+*.blend
+*.blend1
+*.blend2
+*.blend@
+
 # Image files are ignored as they have big filesize
 .jpg
 .jpeg
 .tga
 .tiff
 .png
-
-# Ignore build CV models.
-.pth
-
 
 # Ignore asset-heavy folders
 # Exclude large asset files like 3D models (e.g., .obj, .fbx) or textures for version control
@@ -190,31 +204,11 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-# Blender-specific files
-*.blend1
-*.blend2
-*.blend@
-
 # Unreal Engine-generated files
 *.uproject
 Binaries/
 DerivedDataCache/
 Intermediate/
 Saved/
-application/input_output_files/annotated_output_images/42_jpg.rf.0178905fa993676b7e086d179c2fdbab_annotated.jpg
-application/input_output_files/annotated_output_images/45_jpg.rf.0a4539abdcce39b5ca814252b188edd2_annotated.jpg
-application/input_output_files/annotated_output_images/47_jpg.rf.945e59877037bbc63aae4b2f55396763_annotated.jpg
-application/input_output_files/input_images/42_jpg.rf.0178905fa993676b7e086d179c2fdbab.jpg
-application/input_output_files/input_images/45_jpg.rf.0a4539abdcce39b5ca814252b188edd2.jpg
-application/input_output_files/input_images/47_jpg.rf.945e59877037bbc63aae4b2f55396763.jpg
-application/input_output_files/output_obj_files/42_jpg.rf.0178905fa993676b7e086d179c2fdbab.obj
-application/input_output_files/output_obj_files/45_jpg.rf.0a4539abdcce39b5ca814252b188edd2.obj
-application/input_output_files/output_obj_files/47_jpg.rf.945e59877037bbc63aae4b2f55396763.obj
-application/prebuilt_detect_models/model_roboflow_default_2k_iter/eval_metrics.json
-application/prebuilt_detect_models/model_roboflow_default_2k_iter/events.out.tfevents.1729872594.MSI.21508.0
-application/prebuilt_detect_models/model_roboflow_default_2k_iter/last_checkpoint
-application/prebuilt_detect_models/model_roboflow_default_2k_iter/model_trained_default_set.pth
-application/prebuilt_detect_models/model_roboflow_optimized_5k_iter/eval_metrics.json
-application/prebuilt_detect_models/model_roboflow_optimized_5k_iter/events.out.tfevents.1729939375.MSI.11120.0
-application/prebuilt_detect_models/model_roboflow_optimized_5k_iter/last_checkpoint
-application/prebuilt_detect_models/model_roboflow_optimized_5k_iter/model_optimized_5k_iter.pth
+BLANK_README.md
+*.pth

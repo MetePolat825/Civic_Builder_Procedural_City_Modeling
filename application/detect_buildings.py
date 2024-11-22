@@ -1,19 +1,20 @@
-import os
-import cv2
-import time
-import numpy as np
-import warnings
+from os import path, listdir, makedirs
+from time import time
+from warnings import filterwarnings
+
+from cv2 import findContours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, imwrite, imread
+from numpy import uint8, array
+
 from detectron2.utils.visualizer import Visualizer, ColorMode
-from detectron2 import model_zoo
 from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
-from customtkinter import CTkProgressBar
 
-from post_processing import simplify_contours, smooth_contours, fill_holes, bounding_boxes, convex_hulls # use for user selection of post processing algorithm
+# Post-processing algorithm imports
+from post_processing import simplify_contours, smooth_contours, fill_holes, bounding_boxes, convex_hulls
 
 # Suppress specific warnings
-warnings.filterwarnings("ignore", category=FutureWarning)
-warnings.filterwarnings("ignore", category=UserWarning)
+filterwarnings("ignore", category=FutureWarning)
+filterwarnings("ignore", category=UserWarning)
 
 # Mapping of imported post processing algorithms for user selections in the GUI
 POST_PROCESSING_ALGORITHMS = {
@@ -26,7 +27,7 @@ POST_PROCESSING_ALGORITHMS = {
 
 def process_contours(mask, selected_algorithm):
     # Get contours from the mask
-    contours, _ = cv2.findContours(mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = findContours(mask.astype(uint8), RETR_EXTERNAL, CHAIN_APPROX_SIMPLE)
 
     # Apply the selected post-processing algorithm
     if selected_algorithm in POST_PROCESSING_ALGORITHMS:
@@ -49,7 +50,7 @@ def flatten_contours(contours):
             # Simply set the Z coordinate to 0 to lay it flat on the XY plane
             flattened_contour.append([pt[0][0], pt[0][1], 0])
 
-        flattened_contours.append(np.array(flattened_contour))
+        flattened_contours.append(array(flattened_contour))
     
     return flattened_contours
 
@@ -61,30 +62,32 @@ def extract_features(model_selection, extract_feature, input_folder, output_2d_f
         model_selection (int): Selected model index.
         extract_feature (str): The feature to extract.
         input_folder (str): Path to the input folder containing images.
+        output_2d_folder (str): Path to the output folder for 2D annotated images.
+        output_3d_folder (str): Path to the output folder for 3D OBJ files.
+        export_post_process_algorithm (str): Selected post-processing algorithm.
+        progressbar (CTkProgressBar): Progress bar to update during processing.
     """
+    
     # Configure model weights based on selection
     if model_selection == 1:
         MODEL_WEIGHTS_PATH = "./prebuilt_detect_models/model_roboflow_default_2k_iter/model_trained_default_set.pth"
+        CONFIG_FILE_PATH = "./config/mask_rcnn_R_101_FPN_3x_2k_iter.yaml"  # Local path to the config file
     elif model_selection == 2:
         MODEL_WEIGHTS_PATH = "./prebuilt_detect_models/model_roboflow_optimized_5k_iter/model_optimized_5k_iter.pth"
+        CONFIG_FILE_PATH = "./config/mask_rcnn_R_101_FPN_3x_5k_iter.yaml"  # Local path to the config file
     else:
         MODEL_WEIGHTS_PATH = "./prebuilt_detect_models/model_roboflow_default_2k_iter/model_trained_default_set.pth"
-    
-    # Configuration file path and number of classes config
-    CONFIG_FILE_PATH = "COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml"
-    NUM_CLASSES = 3  # Adjust based on your model's training
+        CONFIG_FILE_PATH = "./config/mask_rcnn_R_101_FPN_3x_5k_iter.yaml"  # Local path to the config file
 
+    NUM_CLASSES = 3  # Adjust based on your model's training
     print(f"Extracting features for: {extract_feature}")
 
     # Set up configuration for inference
     cfg = get_cfg()
     cfg.MODEL.DEVICE = "cuda"  # or "cpu" if GPU is unavailable
-    cfg.merge_from_file(model_zoo.get_config_file(CONFIG_FILE_PATH))
-
-    # Specify the path to the saved trained weights
-    cfg.MODEL.WEIGHTS = MODEL_WEIGHTS_PATH
-    cfg.MODEL.ROI_HEADS.NUM_CLASSES = NUM_CLASSES
-    cfg.INPUT.MASK_FORMAT = 'bitmask'
+    cfg.merge_from_file(CONFIG_FILE_PATH)
+    cfg.MODEL.WEIGHTS = MODEL_WEIGHTS_PATH  # Set the model weights path
+    cfg.MODEL.ROI_HEADS.NUM_CLASSES = NUM_CLASSES  # Set the number of classes
 
     # Initialize the predictor
     predictor = DefaultPredictor(cfg)
@@ -92,25 +95,25 @@ def extract_features(model_selection, extract_feature, input_folder, output_2d_f
     # Create output folders. Replace with custom paths later.
     output_folder = output_2d_folder
     obj_folder = output_3d_folder
-    os.makedirs(output_folder, exist_ok=True)
-    os.makedirs(obj_folder, exist_ok=True)
+    makedirs(output_folder, exist_ok=True)
+    makedirs(obj_folder, exist_ok=True)
 
     # Check for input images
-    if len(os.listdir(input_folder)) == 0:
+    if len(listdir(input_folder)) == 0:
         raise ValueError("No input images found in the specified folder.")
 
     # Start time for prediction
-    start_time = time.time()
+    start_time = time()
 
-    count_of_images = len(os.listdir(input_folder))
+    count_of_images = len(listdir(input_folder))
     weight_per_image = 1 / count_of_images
     progress_value = 0  # start progress from 0
     
     # Iterate over each image file in the folder
-    for image_file in os.listdir(input_folder):
-        print("Processing image...")
-        image_path = os.path.join(input_folder, image_file)
-        img = cv2.imread(image_path)
+    for image_file in listdir(input_folder):
+        print(f"Processing image: {image_file}")
+        image_path = path.join(input_folder, image_file)
+        img = imread(image_path)
 
         # Perform inference
         outputs = predictor(img)
@@ -120,8 +123,8 @@ def extract_features(model_selection, extract_feature, input_folder, output_2d_f
         out = visualizer.draw_instance_predictions(outputs["instances"].to("cpu"))
 
         # Save annotated image
-        output_path = os.path.join(output_2d_folder, f"{os.path.splitext(image_file)[0]}_annotated.jpg")
-        cv2.imwrite(output_path, out.get_image()[:, :, ::-1])  # Convert RGB to BGR for OpenCV and save
+        output_path = path.join(output_2d_folder, f"{path.splitext(image_file)[0]}_annotated.jpg")
+        imwrite(output_path, out.get_image()[:, :, ::-1])  # Convert RGB to BGR for OpenCV and save
 
         # Create .obj file for all detected buildings in this image
         instances = outputs["instances"].to("cpu")
@@ -131,6 +134,26 @@ def extract_features(model_selection, extract_feature, input_folder, output_2d_f
         obj_faces = []  # To hold all face definitions for this image
         vertex_index = 1  # Start vertex indexing at 1 for OBJ format
 
+        # Add the big polygon that spans the entire image
+        height, width, _ = img.shape
+        big_polygon = [
+            [0, 0, 0],
+            [width, 0, 0],
+            [width, height, 0],
+            [0, height, 0]
+        ]
+        big_polygon_vertices = [f"v {pt[0]} {pt[1]} {pt[2]}" for pt in big_polygon]
+        big_polygon_faces = [f"f {vertex_index} {vertex_index+1} {vertex_index+2} {vertex_index+3}"]
+
+        # Write the big polygon to a separate .obj file
+        big_polygon_filename = f"{path.splitext(image_file)[0]}_imagery.obj"
+        big_polygon_file_path = path.join(obj_folder, big_polygon_filename)
+
+        with open(big_polygon_file_path, 'w') as big_polygon_file:
+            big_polygon_file.write("\n".join(big_polygon_vertices) + "\n")
+            big_polygon_file.write("\n".join(big_polygon_faces) + "\n")
+
+        # Process building footprints
         for i in range(len(instances)):
             if instances.scores[i] >= 0.5:  # Filter out low-confidence detections
                 mask = masks[i]
@@ -154,17 +177,17 @@ def extract_features(model_selection, extract_feature, input_folder, output_2d_f
 
                     vertex_index += len(contour)
 
-        # Write to a single .obj file for this image
-        obj_filename = f"{os.path.splitext(image_file)[0]}.obj"
-        obj_file_path = os.path.join(obj_folder, obj_filename)
+        # Write to a single .obj file for building footprints
+        footprints_filename = f"{path.splitext(image_file)[0]}_footprints.obj"
+        footprints_file_path = path.join(obj_folder, footprints_filename)
 
-        with open(obj_file_path, 'w') as obj_file:
-            obj_file.write("\n".join(vertices) + "\n")
-            obj_file.write("\n".join(obj_faces) + "\n")
+        with open(footprints_file_path, 'w') as footprints_file:
+            footprints_file.write("\n".join(vertices) + "\n")
+            footprints_file.write("\n".join(obj_faces) + "\n")
+        
+        print(f"Succesfully extracted features: {image_file}\n")
         
         progress_value += weight_per_image
         progressbar.set(progress_value)
-        
-        print("Finished processing image...")
 
-    print(f"Extracted features of type {extract_feature} from {len(os.listdir(input_folder))} images in {time.time()-start_time:.2f} seconds.")
+    print(f"=====\nSUCCESS:Extracted features of type {extract_feature} from {len(listdir(input_folder))} images in {time()-start_time:.2f} seconds.\n=====")
