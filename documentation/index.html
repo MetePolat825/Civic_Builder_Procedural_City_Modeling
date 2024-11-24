@@ -8,182 +8,182 @@
 </head>
 
 <body>
-    
-    <div class="content">
-        <h1 class="center_txt"><b>Civic Builder v. 0.1 Documentation</b></h1>
+    <div class = "main-container">
+        <div class="content">
+            <h1 class="center_txt"><b>Civic Builder v. 0.3 Documentation</b></h1>
+            <hr>
+            <h3 class="center_txt">What is Civic Builder?</h3>
 
-        <hr>
+            <p style="text-align: justify;">Welcome to Civic Builder, a Computer Vision-powered 3D content generation solution that combines Artificial Intelligence, 3D Computer Graphics Generation and Flexibililty to generate realistic urban environments for your business. Offering a generous selection of pre-trained models and user controllable options,  works across different types of imagery inputs and different areas of the world. It is aimed at simulations, games, and digital twin technologies. Civic Builder creates customizable city layouts with varying densities and infrastructure types, controllable from the Blender plugin component.</p>
 
-        <h3 class="center_txt">What is Civic Builder?</h3>
+            <h3 class="center_txt">And why would I use Civic Builder over the competition?</h3>
+            <p>Civic builder offers a number of stand-out advantages to your project or business. Here's how:</p>
+            <ul style="text-align: justify;">
+                <li>• Easy to use; take a screenshot or upload imagery, select a model, and extract features seamlessly.</li>
+                <li>• Conveniently packages a technically complex pipeline into an easily usable application.</li>
+                <li>• OS-independent and can run on Windows, Mac, and Linux through a convenient Python Flask web application, with great offers for your business.</li>
+                <li>• Self-contained and works without any expensive dependencies, and can be configured to your proprietary software.</li>
+                <li>• Offers many feature extraction algorithms with an ever-expanding selection to suit your business needs, covering different features and regions of the world.</li>
+                <li>• Conveniently and eamlessly integrates into Blender and other 3D modeling solutions using standard data formats.</li>
+                <li>• Provides high-quality, realistic 3D content from satellite imagery without writing any code.</li>
+                <li>• Civic Builder easily and seamlessly integrates into industry standard 3D modeling solutions and into your proprietary pipelines by using standard data formats.</li>
+            </ul>            
 
-        <p>Welcome to Civic Builder, a Computer Vision-powered 3D content generation tool that combines modelling, satellite imagery and GIS data to generate realistic urban environments.</p>
-        <p>Utilizing a combination of pre-trained models and user controllable options, the tool works across different types of imagery inputs and different areas of the world. </p>
-        <p> It is aimed at simulations, games, and digital twin technologies.</p>
-        <p>Civic Builder creates customizable city layouts with varying densities and infrastructure types, controllable from the Blender plugin component.</p>
+            <hr>
 
-        <h3 class="center_txt">Why would I use Civic Builder over others?</h3>
-        <p>Civic Builder conveniently packages multiple workflows together and can be used by anyone, regardless of programming knowledge.</p>
-        <p>Furthermore:</p>
-        <p>• Civic Builder is OS-independent and can run on Windows, Mac and Linux through a conventient Python Flask web application.</p>
-        <p>• Civic Builder is self-contained and works without any expensive dependancies, and can be configured to your proprietary software.</p>
-        <p>• Civic Builder offers many feature extraction algorithms with an ever-expanding selection to suit your business.</p>
-        <p>• Civic Builder is easy to use, take a screenshot or upload imagery, select model, and extract features seamlessly. </p>
-        <p>• Civic Builder easily and seamlessly integrates into Blender and other 3D modeling solutions using standard data formats. </p>
+            <h3 class="center_txt">Sounds good? Here's how easy it is:</h3>
 
-        <hr>
-
-        <h3 class="center_txt">How does Civic Builder work?</h3>
-
-        <br>
-        <p>1 - Import imagery: Get your professional or Google Maps snipped imagery with some buildings into the input directory to start.</p>
-        <img src="media/example_imagery.jpg" class="center_img">
-        <p class="image-description">This image shows the initial import of satellite imagery into the Civic Builder tool. The imported data is essential for the subsequent analysis and feature extraction.</p>
-        <p class="image-source">Source: <a href="https://universe.roboflow.com/buildinginstancesegmentation/building-detection-se64q" target="_blank">Roboflow Building Detection</a> | License: CC BY 4.0</p>
-        
-        <br>
-        <p>2 - Detect features using computer vision model: Select from some basic preferences to fine tune for the desired output.</p>
-        <img src="media/example_detect_1.PNG" class="center_img">
-        <p class="image-description">This image illustrates the detection of various geographical features within the imported imagery, including buildings, roads, and other urban elements.</p>
-        <p class="image-source">Source: <a href="https://universe.roboflow.com/buildinginstancesegmentation/building-detection-se64q" target="_blank">Roboflow Building Detection</a> | License: CC BY 4.0</p>
-        
-        <br>
-        <p>3 - Generate 3D content: Seamless integration into Blender with commonly used formats like OBJ and FBX.</p>
-        <img src="media/example_blender_1.PNG" class="center_img">
-        <p class="image-description">In this step, the detected features are imported into Blender to create a 3D model. This process is crucial for visualizing the extracted data in a realistic format.</p>
-        <p class="image-source">Source: <a href="https://universe.roboflow.com/buildinginstancesegmentation/building-detection-se64q" target="_blank">Roboflow Building Detection</a> | License: CC BY 4.0</p>
-        
-        <br>
-        <p>4 - Final result with textures and PBR materials applied: With many options for your needs!</p>
-        <img src="media/placeholder_gif.gif" class="center_img">
-        <p class="image-description">The final result showcases the completed 3D model created from the detected features and imported into Blender. This model can be utilized for various applications, including simulations and visualizations.</p>
-        <p class="image-source">Source: <a href="https://accucities.com/3d-models-london/level-4-3d-models-london/" target="_blank">AccuCities</a> | Textured City Models & Level 4 Context Models</p>
-        
-        <p>And that's it! Without writing any code or using any complex systems you have gone from satellite imagery to high quality realistic 3D content!</p>
-        <p>If this looks like it fits your business/project needs, please follow the development below!</p>
-
-        <hr>
-        
-        <h2 class="center_txt">Where and how can I get Civic Builder?</h2>
-        
-        <p> Civic Builder is still under development, and development source code is available on GitHub:</p>
-        <a href="https://github.com/MetePolat825/Civic_Builder_Procedural_City_Modeling">https://github.com/MetePolat825/Civic_Builder_Procedural_City_Modeling</a>
-        <p>The final version of Civic Builder will be available through the following distributions, free and paid:</p>
-
-        <ul>
-            <li>
-                <h3><span class="icon">🌐</span> Web Application</h3>
-                <p>A free-to-use application built on the Python Flask framework, offering limited functionality. Perfect for users who want to explore basic features without any commitment.</p>
-            </li>
+            <p>1 - Import imagery: Get your professional or Google Maps snipped imagery with some buildings into the input directory to start. Civic Builder empowers the user to input many kinds of imagery with our great selection of models. Detailed instructions are available <a href="import_imagery.html">here</a>.</p>
+            <img src="media/example_imagery.jpg" class="center_img">
+            <p class="image-description">This image shows the initial import of satellite imagery into the Civic Builder tool. The imported data is essential for the subsequent analysis and feature extraction.</p>
+            <p class="image-source">Source: <a href="https://universe.roboflow.com/buildinginstancesegmentation/building-detection-se64q" target="_blank">Roboflow Building Detection</a> | License: CC BY 4.0</p>
             
-            <li>
-                <h3><span class="icon">💻</span> Local License Version</h3>
-                <p>A one-time purchase option that includes a locally installed version of the software, pre-built with additional premium features for an enhanced user experience. Region specific model selections, enhanced footprints, extraction of other features such as roads trees and bodies of water!</p>
-            </li>
+            <br>
+            <p>2 - Detect features using computer vision model: Select from some basic preferences to fine tune for the desired output. Then let the program do the work for you! Further details available <a href="model_selection.html">here</a>.</p>
+            <img src="media/example_detect_1.PNG" class="center_img">
+            <p class="image-description">This image illustrates the detection of various geographical features within the imported imagery, including buildings, roads, and other urban elements.</p>
+            <p class="image-source">Source: <a href="https://universe.roboflow.com/buildinginstancesegmentation/building-detection-se64q" target="_blank">Roboflow Building Detection</a> | License: CC BY 4.0</p>
             
-            <li>
-                <h3><span class="icon">🔄</span> Monthly Subscription Service</h3>
-                <p>A subscription-based model that allows access to both web and local versions of the software, complete with exclusive premium features. Region specific model selections, enhanced footprints, extraction of other features such as roads trees and bodies of water!</p>
-            </li>
-        </ul>
+            <br>
+            <p>3 - Generate 3D content: Seamless integration into Blender with commonly used formats like OBJ and FBX.</p>
+            <img src="media/example_blender_1.PNG" class="center_img">
+            <p class="image-description">In this step, the detected features are imported into Blender to create a 3D model. This process is crucial for visualizing the extracted data in a realistic format.</p>
+            <p class="image-source">Source: <a href="https://universe.roboflow.com/buildinginstancesegmentation/building-detection-se64q" target="_blank">Roboflow Building Detection</a> | License: CC BY 4.0</p>
+            
+            <br>
+            <p>4 - Final result with textures and PBR materials applied: With many options for your needs!</p>
+            <img src="media/placeholder_gif.gif" class="center_img">
+            <p class="image-description">The final result showcases the completed 3D model created from the detected features and imported into Blender. This model can be utilized for various applications, including simulations and visualizations.</p>
+            <p class="image-source">Source: <a href="https://accucities.com/3d-models-london/level-4-3d-models-london/" target="_blank">AccuCities</a> | Textured City Models & Level 4 Context Models</p>
+            
+            <p>And that's it! Without writing any code or using any complex systems you have gone from satellite imagery to high quality realistic 3D content!</p>
+            <p>If this looks like it fits your business/project needs, please follow the development below!</p>
 
-        <p>Please note that while in development Civic Builder is currently free to use, future versions with extended functionality will adopt a subscription-based model. Stay tuned for updates on new features and pricing!</p>
+            <hr>
+            
+            <h2 class="center_txt">Where and how can I get Civic Builder?</h2>
+            
+            <p> Civic Builder is still under development, and development source code is available on GitHub:</p>
+            <a href="https://github.com/MetePolat825/Civic_Builder_Procedural_City_Modeling">https://github.com/MetePolat825/Civic_Builder_Procedural_City_Modeling</a>
+            <p>The final version of Civic Builder will be available through the following distributions, with free and paid options available to suit your needs:</p>
 
-        <p><strong>Interested in learning more?</strong> Sign up for our newsletter to receive the latest news and updates about Civic Builder!</p>
-        <p>Contact for further pricing inquiries: <a href="mailto:mcp140@student.aru.ac.uk">mcp140@student.aru.ac.uk</a></p>
-        <hr>
-
-        <footer class="footer">
-            <div>
-
-                <p>Thank you for using Civic Builder!</p>
-                <p>Civic Builder is free to use and is an educational project still in development.</p>
-                <p>You can follow the development of Civic Builder here:</p>
-                <a href="https://github.com/MetePolat825/Civic_Builder_Procedural_City_Modeling">https://github.com/MetePolat825/Civic_Builder_Procedural_City_Modeling</a>
-
-                <br>
-                <br>
+            <ul>
+                <li>
+                    <h3><span class="icon">🌐</span> Web Application</h3>
+                    <p>A free-to-use application built on the Python Flask framework, offering limited introductionary functionality. Perfect for users who want to explore basic features without any commitment.</p>
+                </li>
                 
-                <p>© 2024 Civic Builder. All Rights Reserved.</p>
-                <p>
-                    <a href="privacy_policy.html">Privacy Policy</a> | 
-                    <a href="terms_of_service.html">Terms of Service</a>
-                </p>
-                <p>Contact for support and suggestions: <a href="mailto:mcp140@student.aru.ac.uk">mcp140@student.aru.ac.uk</a></p>
-                <p>Follow on 
-                    <a href="https://twitter.com" target="_blank">Twitter</a>, 
-                    <a href="https://facebook.com" target="_blank">Facebook</a>, 
-                    <a href="https://linkedin.com" target="_blank">LinkedIn</a>
-                </p>
-            </div>
-        </footer>
-    
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                const sidebarToggle = document.getElementById("sidebarToggle");
-                const sidebar = document.getElementById("sidebar");
-    
-                sidebarToggle.addEventListener("click", function() {
-                    if (sidebar.style.display === "block") {
-                        sidebar.style.display = "none"; // Hide the sidebar
-                    } else {
-                        sidebar.style.display = "block"; // Show the sidebar
-                    }
+                <li>
+                    <h3><span class="icon">💻</span> Local License Version</h3>
+                    <p>A one-time purchase option that includes a locally installed version of the software, pre-built with additional premium features for an enhanced user experience. Region specific model selections, enhanced footprints, extraction of other features such as roads trees and bodies of water!</p>
+                </li>
+                
+                <li>
+                    <h3><span class="icon">🔄</span> Monthly Subscription Service</h3>
+                    <p>A subscription-based model that allows access to both web and local versions of the software, complete with exclusive premium features. Region specific model selections, enhanced footprints, extraction of other features such as roads trees and bodies of water!</p>
+                </li>
+            </ul>
+
+            <p>Please note that while in the development stage Civic Builder is free to use, future versions with extended functionality will adopt a paid model. Stay tuned for updates on new features and pricing!</p>
+
+            <p><strong>Interested in learning more?</strong> Sign up for our newsletter to receive the latest news and updates about Civic Builder!</p>
+            <p>Contact for further pricing inquiries: <a href="mailto:mcp140@student.aru.ac.uk">mcp140@student.aru.ac.uk</a></p>
+            <hr>
+
+            <footer class="footer">
+                <div>
+
+                    <p>Thank you for using Civic Builder!</p>
+                    <p>Civic Builder is free to use and is an educational project still in development.</p>
+                    <p>You can follow the development of Civic Builder here:</p>
+                    <a href="https://github.com/MetePolat825/Civic_Builder_Procedural_City_Modeling">https://github.com/MetePolat825/Civic_Builder_Procedural_City_Modeling</a>
+
+                    <br>
+                    <br>
+                    
+                    <p>© 2024 Civic Builder. All Rights Reserved.</p>
+                    <p>
+                        <a href="privacy_policy.html">Privacy Policy</a> | 
+                        <a href="terms_of_service.html">Terms of Service</a>
+                    </p>
+                    <p>Contact for support and suggestions: <a href="mailto:mcp140@student.aru.ac.uk">mcp140@student.aru.ac.uk</a></p>
+                    <p>Follow on 
+                        <a href="https://twitter.com" target="_blank">Twitter</a>, 
+                        <a href="https://facebook.com" target="_blank">Facebook</a>, 
+                        <a href="https://linkedin.com" target="_blank">LinkedIn</a>
+                    </p>
+                </div>
+            </footer>
+        
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    const sidebarToggle = document.getElementById("sidebarToggle");
+                    const sidebar = document.getElementById("sidebar");
+        
+                    sidebarToggle.addEventListener("click", function() {
+                        if (sidebar.style.display === "block") {
+                            sidebar.style.display = "none"; // Hide the sidebar
+                        } else {
+                            sidebar.style.display = "block"; // Show the sidebar
+                        }
+                    });
                 });
-            });
-        </script>
+            </script>
 
-    </div>
+        </div>
 
-    <div class="sidebar" id="sidebar">
-        <img src = "media/civic_builder.png" alt="placeholder image of the civic builder logo" class= "center_img_sidebar_hdr">
-        <h2 class="sidebar_header"><b>CIVIC BUILDER v. 0.1</b></h2>
-        <input type="text" id="tocSearch" placeholder="Search...">
-        <script>
-            document.getElementById('tocSearch').addEventListener('input', function() {
-                const query = this.value.toLowerCase();
-                document.querySelectorAll('.sidebar ul li').forEach(item => {
-                    const text = item.textContent.toLowerCase();
-                    item.style.display = text.includes(query) ? 'block' : 'none';
+        <div class="sidebar" id="sidebar">
+            <img src = "media/civic_builder.png" alt="placeholder image of the civic builder logo" class= "center_img_sidebar_hdr">
+            <h2 class="sidebar_header"><b>CIVIC BUILDER v. 0.3</b></h2>
+            <input type="text" id="tocSearch" placeholder="Search...">
+            <script>
+                document.getElementById('tocSearch').addEventListener('input', function() {
+                    const query = this.value.toLowerCase();
+                    document.querySelectorAll('.sidebar ul li').forEach(item => {
+                        const text = item.textContent.toLowerCase();
+                        item.style.display = text.includes(query) ? 'block' : 'none';
+                    });
                 });
-            });
-        </script>
+            </script>
 
-        <p>
-            <a href="index.html">Return to Main Page</a>
-        </p>
+            <p>
+                <a href="index.html">Return to Main Page</a>
+            </p>
 
-        <h2>Table of Contents</h2>
+            <h2>Table of Contents</h2>
 
 
-        <h2>1. Overview</h2>
-        <ul>
-            <li><a href="about.html">1.1 - About Civic Builder</a></li>
-            <li><a href="version_history.html">1.2 - Version History & Updates</a></li>
-            <li><a href="getting_started.html">1.3 - Getting Started with Civic Builder</a></li>
-            <li><a href="installation_setup.html">1.4 - Installation & Setup</a></li>
-            <li><a href="web_application_guide.html">1.5 - Using the Web Application</a></li>
-            <li><a href="contributing.html">1.6 - Contributing</a></li>
-            <li><a href="troubleshooting_faq.html">1.7 - Troubleshooting & FAQs</a></li>
-            <li><a href="acknowledgments.html">1.8 - Acknowledgments</a></li>
-        </ul>
+            <h2>1. Overview</h2>
+            <ul>
+                <li><a href="about.html">1.1 - About Civic Builder</a></li>
+                <li><a href="version_history.html">1.2 - Version History & Updates</a></li>
+                <li><a href="getting_started.html">1.3 - Getting Started with Civic Builder</a></li>
+                <li><a href="installation_setup.html">1.4 - Installation & Setup</a></li>
+                <li><a href="web_application_guide.html">1.5 - Using the Web Application</a></li>
+                <li><a href="contributing.html">1.6 - Contributing</a></li>
+                <li><a href="troubleshooting_faq.html">1.7 - Troubleshooting & FAQs</a></li>
+                <li><a href="acknowledgments.html">1.8 - Acknowledgments</a></li>
+            </ul>
 
-        <h2>2. Standalone Component</h2>
-        <ul>
-            <li><a href="import_imagery.html">2.1 - Import Imagery</a></li>
-            <li><a href="model_selection.html">2.2 - User Preferences and Model Selection</a></li>
-            <li><a href="detection_process.html">2.3 - Detection Process</a></li>
-            <li><a href="post_processing.html">2.4 - Post Processing of Output</a></li>
-            <li><a href="export_output.html">2.5 - Export of Output</a></li>
-        </ul>
+            <h2>2. Standalone Component</h2>
+            <ul>
+                <li><a href="import_imagery.html">2.1 - Import Imagery</a></li>
+                <li><a href="model_selection.html">2.2 - User Preferences and Model Selection</a></li>
+                <li><a href="detection_process.html">2.3 - Detection Process</a></li>
+                <li><a href="post_processing.html">2.4 - Post Processing of Output</a></li>
+                <li><a href="export_output.html">2.5 - Export of Output</a></li>
+            </ul>
 
-        <h2>3. Blender Plugin</h2>
-        <ul>
-            <li><a href="plugin_overview.html">3.1 - Blender Plugin Overview</a></li>
-            <li><a href="import_feature_data.html">3.2 - Importing Feature Data</a></li>
-            <li><a href="user_options.html">3.3 - User Controllable Options</a></li>
-            <li><a href="geometry_nodes_integration.html">3.4 - Geometry Nodes Integration</a></li>
-            <li><a href="adding_extra_features.html">3.5 - Adding Extra Features</a></li>
-        </ul>   
+            <h2>3. Blender Plugin</h2>
+            <ul>
+                <li><a href="plugin_overview.html">3.1 - Blender Plugin Overview</a></li>
+                <li><a href="import_feature_data.html">3.2 - Importing Feature Data</a></li>
+                <li><a href="user_options.html">3.3 - User Controllable Options</a></li>
+                <li><a href="geometry_nodes_integration.html">3.4 - Geometry Nodes Integration</a></li>
+                <li><a href="adding_extra_features.html">3.5 - Adding Extra Features</a></li>
+                <p>Civic Builder 0.2</p>
+            </ul>   
+        </div>
     </div>
     
 </body>

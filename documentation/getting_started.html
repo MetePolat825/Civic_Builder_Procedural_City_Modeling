@@ -3,111 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Export of OBJ Format</title>
+    <title>Civic Builder Documentation</title>
     <link rel="stylesheet" href="styles.css"> <!-- Link to external CSS file -->
 </head>
+
 <body>
+    <div class = "main-container">
+        <div class="content">
+            <h1 class="center_txt"><b>Civic Builder v. 0.3 Documentation</b></h1>
+            <hr>
+            <h1 class="center_txt"><b>Getting Started with Civic Builder</b></h1>
+            <hr>
+            <h2>What You Need to Get Going</h2>
+
+            <p>To begin using Civic Builder effectively, ensure you have the necessary tools and resources:</p>
     
-    <div class="content">
-        <h1 class="center_txt"><b>Civic Builder Documentation</b></h1>
-
-        <hr>
-
-        <h1 class>About Civic Builder</h1>
-        <p>To export your results in OBJ format, follow these instructions:</p>
-        <p>[Placeholder text explaining the export process goes here.]</p>
-        <p><a href="index.html">Back to Main Page</a></p>
-
-        <footer class="footer">
-            <div>
-
-                <p>Thank you for using Civic Builder!</p>
-                <p>Civic Builder is free to use and is an educational project still in development.</p>
-                <p>You can follow the development of Civic Builder here:</p>
-                <a href="https://github.com/MetePolat825/Civic_Builder_Procedural_City_Modeling">https://github.com/MetePolat825/Civic_Builder_Procedural_City_Modeling</a>
-
-                <br>
-                <br>
-                
-                <p>© 2024 Civic Builder. All Rights Reserved.</p>
-                <p>
-                    <a href="privacy_policy.html">Privacy Policy</a> | 
-                    <a href="terms_of_service.html">Terms of Service</a>
-                </p>
-                <p>Contact for support and suggestions: <a href="mailto:mcp140@student.aru.ac.uk">mcp140@student.aru.ac.uk</a></p>
-                <p>Follow on 
-                    <a href="https://twitter.com" target="_blank">Twitter</a>, 
-                    <a href="https://facebook.com" target="_blank">Facebook</a>, 
-                    <a href="https://linkedin.com" target="_blank">LinkedIn</a>
-                </p>
-            </div>
-        </footer>
+            <h3>Hardware Requirements</h3>
+            <p>Civic Builder is designed to run on standard desktop or laptop computers. While specific hardware requirements can vary based on the complexity of your projects, we recommend:</p>
+            <ul>
+                <li><strong>Processor:</strong> Multi-core processor (Intel i5 or equivalent recommended)</li>
+                <li><strong>RAM:</strong> 8GB or more</li>
+                <li><strong>Graphics:</strong> Dedicated GPU recommended for optimal performance</li>
+            </ul>
     
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                const sidebarToggle = document.getElementById("sidebarToggle");
-                const sidebar = document.getElementById("sidebar");
+            <h3>Software Requirements</h3>
+            <p>Depending on whether you choose the web application or standalone offline version, software requirements differ:</p>
+            <ul>
+                <li><strong>Web Application:</strong> Accessible through any modern web browser with JavaScript enabled. No additional software installation is required.</li>
+                <li><strong>Standalone Offline Version:</strong> Available for Windows operating systems only. Ensure your system meets the minimum requirements specified in the installation instructions.</li>
+            </ul>
     
-                sidebarToggle.addEventListener("click", function() {
-                    if (sidebar.style.display === "block") {
-                        sidebar.style.display = "none"; // Hide the sidebar
-                    } else {
-                        sidebar.style.display = "block"; // Show the sidebar
-                    }
+            <h3>Data Requirements</h3>
+            <p>To create accurate 3D models, you'll need:</p>
+            <ul>
+                <li><strong>Imagery:</strong> High-resolution satellite imagery or aerial photographs of the area you intend to model.</li>
+                <li><strong>GIS Data:</strong> Optional but recommended for precise geospatial alignment and feature extraction.</li>
+            </ul>
+    
+            <h2>Installing Civic Builder</h2>
+    
+            <h3>Web Application</h3>
+            <p>Using Civic Builder as a web application is straightforward:</p>
+            <ol>
+                <li>Visit the Civic Builder website at [to be added!].</li>
+                <li>Create an account or log in to your existing account. A free account is available with a limited trial version of the software.</li>
+                <li>Begin using the application directly from your browser.</li>
+            </ol>
+    
+            <h3>Standalone Offline Version</h3>
+            <p>For users preferring an offline experience on Windows:</p>
+            <ol>
+                <li>Download the Civic Builder installation package from the official website.</li>
+                <li>Run the installer and follow the on-screen instructions.</li>
+                <li>Launch Civic Builder from your desktop after installation.</li>
+            </ol>
+    
+            <h2>Using Civic Builder</h2>
+    
+            <h3>Web Application</h3>
+            <p>The web application provides a user-friendly interface for creating 3D models:</p>
+            <ol>
+                <li>Import your satellite imagery or aerial photos directly into the application.</li>
+                <li>Select and configure 3D model parameters such as building types, roads, and terrain features.</li>
+                <li>Generate and preview your 3D cityscape in real-time.</li>
+                <li>Export the finalized model for further use or integration.</li>
+            </ol>
+    
+            <h3>Standalone Offline Version</h3>
+            <p>The standalone version offers more flexibility and control:</p>
+            <ol>
+                <li>Import local imagery or connect to GIS databases for data integration.</li>
+                <li>Utilize advanced features for detailed feature extraction and customization.</li>
+                <li>Process and refine your 3D models with tools optimized for offline performance.</li>
+                <li>Export models in various formats compatible with industry-standard software like Blender.</li>
+            </ol>
+    
+            <p style="text-align: justify;">Whether you're new to 3D modeling or an experienced urban planner, Civic Builder empowers you to create realistic cityscapes efficiently. Explore our comprehensive documentation and community resources to maximize your experience.</p>
+
+            
+            <p><a href="index.html">Back to Main Page</a></p>
+
+            <hr>
+            <footer class="footer">
+                <div>
+
+                    <p>Thank you for using Civic Builder!</p>
+                    <p>Civic Builder is free to use and is an educational project still in development.</p>
+                    <p>You can follow the development of Civic Builder here:</p>
+                    <a href="https://github.com/MetePolat825/Civic_Builder_Procedural_City_Modeling">https://github.com/MetePolat825/Civic_Builder_Procedural_City_Modeling</a>
+
+                    <br>
+                    <br>
+                    
+                    <p>© 2024 Civic Builder. All Rights Reserved.</p>
+                    <p>
+                        <a href="privacy_policy.html">Privacy Policy</a> | 
+                        <a href="terms_of_service.html">Terms of Service</a>
+                    </p>
+                    <p>Contact for support and suggestions: <a href="mailto:mcp140@student.aru.ac.uk">mcp140@student.aru.ac.uk</a></p>
+                    <p>Follow on 
+                        <a href="https://twitter.com" target="_blank">Twitter</a>, 
+                        <a href="https://facebook.com" target="_blank">Facebook</a>, 
+                        <a href="https://linkedin.com" target="_blank">LinkedIn</a>
+                    </p>
+                </div>
+            </footer>
+        
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    const sidebarToggle = document.getElementById("sidebarToggle");
+                    const sidebar = document.getElementById("sidebar");
+        
+                    sidebarToggle.addEventListener("click", function() {
+                        if (sidebar.style.display === "block") {
+                            sidebar.style.display = "none"; // Hide the sidebar
+                        } else {
+                            sidebar.style.display = "block"; // Show the sidebar
+                        }
+                    });
                 });
-            });
-        </script>
+            </script>
 
-    </div>
+        </div>
 
-
-    <div class="sidebar" id="sidebar">
-        <img src = "media/civic_builder.png" alt="image of the civic builder logo" class= "center_img">
-        <h2 class="sidebar_header"><b>CIVIC BUILDER v 0.1</b></h2>
-        <input type="text" id="tocSearch" placeholder="Search...">
-        <script>
-            document.getElementById('tocSearch').addEventListener('input', function() {
-                const query = this.value.toLowerCase();
-                document.querySelectorAll('.sidebar ul li').forEach(item => {
-                    const text = item.textContent.toLowerCase();
-                    item.style.display = text.includes(query) ? 'block' : 'none';
+        <div class="sidebar" id="sidebar">
+            <img src = "media/civic_builder.png" alt="placeholder image of the civic builder logo" class= "center_img_sidebar_hdr">
+            <h2 class="sidebar_header"><b>CIVIC BUILDER v. 0.3</b></h2>
+            <input type="text" id="tocSearch" placeholder="Search...">
+            <script>
+                document.getElementById('tocSearch').addEventListener('input', function() {
+                    const query = this.value.toLowerCase();
+                    document.querySelectorAll('.sidebar ul li').forEach(item => {
+                        const text = item.textContent.toLowerCase();
+                        item.style.display = text.includes(query) ? 'block' : 'none';
+                    });
                 });
-            });
-        </script>
-        <h2>Table of Contents</h2>
+            </script>
+
+            <p>
+                <a href="index.html">Return to Main Page</a>
+            </p>
+
+            <h2>Table of Contents</h2>
 
 
-        <h2>1. Overview</h2>
-        <ul>
-            <li><a href="about.html">1.1 - About Civic Builder</a></li>
-            <li><a href="version_history.html">1.2 - Version History & Updates</a></li>
-            <li><a href="getting_started.html">1.3 - Getting Started with Civic Builder</a></li>
-            <li><a href="installation_setup.html">1.4 - Installation & Setup</a></li>
-            <li><a href="web_application_guide.html">1.5 - Using the Web Application</a></li>
-            <li><a href="contributing.html">1.6 - Contributing</a></li>
-            <li><a href="troubleshooting_faq.html">1.7 - Troubleshooting & FAQs</a></li>
-            <li><a href="acknowledgments.html">1.8 - Acknowledgments</a></li>
-        </ul>
+            <h2>1. Overview</h2>
+            <ul>
+                <li><a href="about.html">1.1 - About Civic Builder</a></li>
+                <li><a href="version_history.html">1.2 - Version History & Updates</a></li>
+                <li><a href="getting_started.html">1.3 - Getting Started with Civic Builder</a></li>
+                <li><a href="installation_setup.html">1.4 - Installation & Setup</a></li>
+                <li><a href="web_application_guide.html">1.5 - Using the Web Application</a></li>
+                <li><a href="contributing.html">1.6 - Contributing</a></li>
+                <li><a href="troubleshooting_faq.html">1.7 - Troubleshooting & FAQs</a></li>
+                <li><a href="acknowledgments.html">1.8 - Acknowledgments</a></li>
+            </ul>
 
-        <h2>2. Standalone Component</h2>
-        <ul>
-            <li><a href="import_imagery.html">2.1 - Import Imagery</a></li>
-            <li><a href="model_selection.html">2.2 - User Preferences and Model Selection</a></li>
-            <li><a href="detection_process.html">2.3 - Detection Process</a></li>
-            <li><a href="post_processing.html">2.4 - Post Processing of Output</a></li>
-            <li><a href="export_output.html">2.5 - Export of Output</a></li>
-        </ul>
+            <h2>2. Standalone Component</h2>
+            <ul>
+                <li><a href="import_imagery.html">2.1 - Import Imagery</a></li>
+                <li><a href="model_selection.html">2.2 - User Preferences and Model Selection</a></li>
+                <li><a href="detection_process.html">2.3 - Detection Process</a></li>
+                <li><a href="post_processing.html">2.4 - Post Processing of Output</a></li>
+                <li><a href="export_output.html">2.5 - Export of Output</a></li>
+            </ul>
 
-        <h2>3. Blender Plugin</h2>
-        <ul>
-            <li><a href="plugin_overview.html">3.1 - Blender Plugin Overview</a></li>
-            <li><a href="import_feature_data.html">3.2 - Importing Feature Data</a></li>
-            <li><a href="user_options.html">3.3 - User Controllable Options</a></li>
-            <li><a href="geometry_nodes_integration.html">3.4 - Geometry Nodes Integration</a></li>
-            <li><a href="adding_extra_features.html">3.5 - Adding Extra Features</a></li>
-        </ul>    
+            <h2>3. Blender Plugin</h2>
+            <ul>
+                <li><a href="plugin_overview.html">3.1 - Blender Plugin Overview</a></li>
+                <li><a href="import_feature_data.html">3.2 - Importing Feature Data</a></li>
+                <li><a href="user_options.html">3.3 - User Controllable Options</a></li>
+                <li><a href="geometry_nodes_integration.html">3.4 - Geometry Nodes Integration</a></li>
+                <li><a href="adding_extra_features.html">3.5 - Adding Extra Features</a></li>
+                <p>Civic Builder 0.2</p>
+            </ul>   
+        </div>
     </div>
-
-
+    
 </body>
 </html>
