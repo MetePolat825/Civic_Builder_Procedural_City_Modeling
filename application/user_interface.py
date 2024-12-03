@@ -1,7 +1,10 @@
-from os import path, listdir
-from webbrowser import open  # For opening the local HTML documentation
+from os import path, listdir,startfile
+import webbrowser
 from threading import Thread  # For running the UI in a separate thread to avoid freezing
 import sys
+import subprocess
+import json
+import os
 
 import tkinter as tk
 import customtkinter as ctk
@@ -12,7 +15,6 @@ from PIL import Image as PILImage, ImageTk
 
 from detect_buildings import extract_features
 
-export_post_process_algorithm = ""
 
 class App:
     def __init__(self, root):
@@ -22,15 +24,14 @@ class App:
         # Load and set the icon
         self.set_icon()
 
-        # Set default appearance mode
-        ctk.set_appearance_mode("dark")  # Let system control the theme by default
-        ctk.set_default_color_theme("dark-blue")  # Custom color theme for styling
+        # Set default customtkinter appearance mode
+        ctk.set_appearance_mode("dark")
+        ctk.set_default_color_theme("dark-blue")
 
         # Set the default window size and position
-        root.geometry("1250x700")  # Width x Height
-        #self.center_window()        
+        root.geometry("1250x750")  # Width x Height    
         
-        # Define the sidebar frame and other frames for each section
+        # Create all frames for the application
         self.sidebar_frame = ctk.CTkFrame(root, width=150, fg_color=None, corner_radius=0, border_color="black", border_width=2)
         self.detection_frame = ctk.CTkFrame(root)
         self.paths_frame = ctk.CTkFrame(root)
@@ -38,78 +39,119 @@ class App:
         self.run_frame = ctk.CTkFrame(root)
         self.all_frames = [self.detection_frame,self.paths_frame,self.post_processing_frame,self.run_frame]
         
-        # Load the image using PIL
+        # Load logo
         logo_path = path.join(path.dirname(__file__), 'media', 'civic_builder.png')
         pil_image = PILImage.open(logo_path)
-        
-        # Resize the image to 50% of its original size
         new_width = int(pil_image.width * 0.4)
         new_height = int(pil_image.height * 0.4)
         resized_image = pil_image.resize((new_width, new_height))
-        
-        # Convert the resized image to a format that Tkinter can use
         self.logo_image = ImageTk.PhotoImage(resized_image)
-        
-        # Add logo to sidebar using a label
         self.logo_label = ctk.CTkLabel(self.sidebar_frame, image=self.logo_image, text="")
-        self.logo_label.pack(pady=10, padx=10)  # Add some padding around the logo
+        self.logo_label.pack(pady=10, padx=10)
         
-        # test run all frames, generate variables
-        self.show_detection_frame()
+        self.user_preferences = self.get_user_preferences()
+        
+        # Initialize attributes
+        self.input_folder_path = self.user_preferences.get("input_folder_path", "")
+        self.output_2d_folder_path = self.user_preferences.get("output_2d_folder_path", "")
+        self.output_3d_folder_path = self.user_preferences.get("output_3d_folder_path", "")
+        self.blender_path = self.user_preferences.get("blender_path", "")
+        
+        # test run all frames, generate variables. Better implementation needed but will work for now!
         self.show_paths_frame()
+        self.show_detection_frame()
         self.show_post_processing_frame()
         self.show_run_frame()
-        
+
         self.current_frame = None  
-        # Sidebar Buttons
         
-        self.title_label = ctk.CTkLabel(self.sidebar_frame, text="Civic Builder\nIntelligent feature extraction.", anchor="w", font=("Arial", 16, "bold"))
+        # Sidebar Buttons
+        self.title_label = ctk.CTkLabel(self.sidebar_frame, text="Civic Builder\n 3D feature extraction solutions.", anchor="w", font=("Arial", 16, "bold"))
         self.title_label.pack(pady=10, padx=10, fill="x")
-
-        # Set uniform width for all buttons by using 'fill="x"'
-        self.detection_button = ctk.CTkButton(self.sidebar_frame, text="🔍 Detection Configuration", command=self.show_detection_frame)
-        self.detection_button.pack(pady=10, padx=10, fill="x")
-
+        
         self.paths_button = ctk.CTkButton(self.sidebar_frame, text="📂 Input/Output Paths", command=self.show_paths_frame)
         self.paths_button.pack(pady=10, padx=10, fill="x")
-
-        self.post_processing_button = ctk.CTkButton(self.sidebar_frame, text="🔧 Post Processing", command=self.show_post_processing_frame)
-        self.post_processing_button.pack(pady=10, padx=10, fill="x")
 
         self.run_button = ctk.CTkButton(self.sidebar_frame, text="⏯️ Run Extraction", command=self.show_run_frame)
         self.run_button.pack(pady=10, padx=10, fill="x")
 
-        self.linebreak = ctk.CTkLabel(self.sidebar_frame, text=" ")
-        self.linebreak.pack(pady=10, padx=10, fill="x")
-
-        # About & Documentation
+        self.basics_label = ctk.CTkLabel(self.sidebar_frame, text=" ")
+        self.basics_label.pack(padx=10, fill="x")
+        
+        self.detection_button = ctk.CTkButton(self.sidebar_frame, text="🔍 Detection Configuration", command=self.show_detection_frame)
+        self.detection_button.pack(pady=10, padx=10, fill="x")
+        
+        self.post_processing_button = ctk.CTkButton(self.sidebar_frame, text="🔧 Post Processing", command=self.show_post_processing_frame)
+        self.post_processing_button.pack(pady=10, padx=10, fill="x")
+        
+        self.basics_label = ctk.CTkLabel(self.sidebar_frame, text=" ")
+        self.basics_label.pack(padx=10, fill="x")
+        
         self.help_button = ctk.CTkButton(self.sidebar_frame, text="📚 Documentation", command=self.open_help)
         self.help_button.pack(pady=10, padx=10, fill="x")
 
         self.about_button = ctk.CTkButton(self.sidebar_frame, text="ℹ️ About", command=self.show_about)
         self.about_button.pack(pady=10, padx=10, fill="x")
 
-        # Sidebar toggle for light/dark mode
-        self.dark_mode_switch = ctk.CTkSwitch(self.sidebar_frame, text="Light Mode", command=self.toggle_mode)
-        self.dark_mode_switch.pack(pady=10, padx=60, fill="x",anchor="center")
-
-        # Exit Button with Red Background
         self.exit_button = ctk.CTkButton(self.sidebar_frame, text="Quit to Desktop", command=self.exit_app, fg_color="red")
         self.exit_button.pack(pady=10, padx=10, fill="x")
 
-        self.info_label = ctk.CTkLabel(self.sidebar_frame, text="Civic Builder v. 0.1", anchor="w")
+        self.info_label = ctk.CTkLabel(self.sidebar_frame, text="Civic Builder v. 1.0", anchor="w")
         self.info_label.pack(pady=10, padx=10)  
 
+        # Sidebar toggle for light/dark mode
+        self.dark_mode_switch = ctk.CTkSwitch(self.sidebar_frame, text="Light Mode", command=self.toggle_mode)
+        self.dark_mode_switch.pack(pady=10, padx=60, fill="x",anchor="center")
+        
         # Pack the sidebar
         self.sidebar_frame.grid(row=0, column=0, rowspan=3, sticky="nsew")
         
-        # Initial frame
-        self.show_detection_frame()
-        
-        # Load and display the placeholder image
-        #self.placeholder_image = tk.PhotoImage(file="civic_builder.png")
-        #self.image_label = ctk.CTkLabel(master, image=self.placeholder_image)
-        #self.image_label.pack(side=ctk.RIGHT, padx=10, pady=10)
+        # default frame redraw
+        self.show_paths_frame()
+    
+    def get_user_preferences(self):
+        """Get user preferences from a configuration file."""
+        user_preferences = {
+            "input_folder_path": "",
+            "output_2d_folder_path": "",
+            "output_3d_folder_path": "",
+            "blender_path": ""
+        }
+        try:
+            with open("user_preferences.json", "r") as file:
+                user_preferences = json.load(file)
+        except FileNotFoundError:
+            print("User preferences file not found. Using default settings.")
+            self.save_user_preferences(user_preferences)
+        except Exception as e:
+            print(f"Error loading user preferences: {e}")
+            raise
+        return user_preferences
+
+    def save_user_preferences(self, user_preferences):
+        """Save user preferences to a configuration file."""
+        try:
+            with open("user_preferences.json", "w") as file:
+                json.dump(user_preferences, file, indent=4)
+        except Exception as e:
+            print(f"Error saving user preferences: {e}")
+            raise
+
+        self.user_preferences = self.get_user_preferences()
+        self.input_folder_path = self.user_preferences.get("input_folder_path", "")
+        self.output_2d_folder_path = self.user_preferences.get("output_2d_folder_path", "")
+        self.output_3d_folder_path = self.user_preferences.get("output_3d_folder_path", "")
+        self.blender_path = self.user_preferences.get("blender_path", "")
+
+    def save_preferences_after_run(self):
+        """Save user preferences after a successful run."""
+        user_preferences = {
+            "input_folder_path": self.input_folder_path,
+            "output_2d_folder_path": self.output_2d_folder_path,
+            "output_3d_folder_path": self.output_3d_folder_path,
+            "blender_path": self.blender_path
+        }
+        self.save_user_preferences(user_preferences)
 
     def toggle_mode(self):
         """Toggle between dark and light modes."""
@@ -117,7 +159,7 @@ class App:
         ctk.set_appearance_mode("Light" if current_mode == "Dark" else "Dark")
         
     def depopulate_frame(self, frame: ctk.CTkFrame):
-        """Destroy all widgets in a given ctk.CTkFrame (frame) parameter."""
+        """Destroy all widgets in a given ctk.CTkFrame (frame) parameter. Best used before redrawing a frame."""
         if frame:
             for widget in frame.winfo_children():
                 widget.destroy()  # Completely removes the widget from the frame
@@ -152,13 +194,34 @@ class App:
         self.model_label = ctk.CTkLabel(left_frame, text="Select a Computer Vision Model:",font=("Arial", 14))
         self.model_label.pack(padx=5, pady=5)
 
-        # Add instructions label in the right frame
-        self.instructions_label = ctk.CTkLabel(left_frame, text="Select a computer vision model to use for feature extraction from imagery.\nNote that different models have been trained for different regions and purposes.\nDifferent building types and parts of the world require different models.\nCivic Builder allows the selection of the following pre-trained detection models:",
-                                               font=("Arial", 12),
-                                               anchor="w",
-                                               justify ="left")
+        # Add instructions textbox in the left frame
+        instructions_frame = ctk.CTkFrame(left_frame)
+        instructions_frame.pack(anchor="w", padx=5, pady=5, fill="both", expand=True)
+
+        self.instructions_textbox = ctk.CTkTextbox(
+            instructions_frame,
+            font=("Arial", 12),
+            width=300, 
+            height=100, 
+            wrap="word"
+        )
+
+        self.instructions_textbox.insert(
+            "0.0",
+            text="Select below a detection model to use for feature extraction from imagery.\n\nFor further details on each model, access documentation by clicking the help buttons."
+        )
+
+        self.instructions_textbox.grid(row=0, column=1, padx=10, pady=10)
+
+        # Load help image and resize it
+        help_image = tk.PhotoImage(file="media/help.png").subsample(6, 6)  # Adjust subsample to resize
+
+        # Help button for documentation
+        help_button = ctk.CTkButton(instructions_frame, image=help_image, text="", 
+                                    command=lambda: self.open_help("model_selection.html"))
+        help_button.image = help_image  # Keep a reference to avoid garbage collection
+        help_button.grid(row=0, column=0, padx=10, pady=10)
         
-        self.instructions_label.pack(anchor="w", padx=15, pady=5)
 
         # Model options
         self.model_options = [
@@ -183,7 +246,7 @@ class App:
         self.model_dropdown.pack(pady=5)
 
         # Feature selection label
-        self.feature_label = ctk.CTkLabel(left_frame, text="Select Feature to Extract:",font=("Arial", 14))
+        self.feature_label = ctk.CTkLabel(left_frame, text="Select 3D Feature to Extract:",font=("Arial", 14))
         self.feature_label.pack(pady=5)
 
         # Feature options
@@ -194,12 +257,24 @@ class App:
             "(Not implemented) Water Bodies"
         ]
         
-        self.instructions_label = ctk.CTkLabel(left_frame, text="Civic builder is able to extract multiple different features from imagery.\nSeparate specially trained models can be used to specifically extract each feature.\nCivic Builder provides multiple of such specifically pre-trained models.\nThe following features are available for extraction:",
-                                               font=("Arial", 12),
-                                               anchor="w",
-                                               justify ="left")
-        
-        self.instructions_label.pack(anchor="w", padx=15, pady=5)
+        # Add instructions textbox for feature options
+        feature_instructions_frame = ctk.CTkFrame(left_frame)
+        feature_instructions_frame.pack(anchor="w", padx=5, pady=5, fill="both", expand=True)
+
+        self.feature_instructions_textbox = ctk.CTkTextbox(
+            feature_instructions_frame,
+            font=("Arial", 12),
+            width=450,  # Set appropriate width
+            height=20,  # Optionally set height
+            wrap="word"
+        )
+
+        self.feature_instructions_textbox.insert(
+            "0.0",
+            text="Select below the features you wish to extract from input imagery."
+        )
+
+        self.feature_instructions_textbox.grid(row=0, column=1, padx=5, pady=10)
 
         # Dropdown variable for feature selection
         if not hasattr(self, 'feature_var'):
@@ -211,18 +286,25 @@ class App:
             variable=self.feature_var,  # This holds the currently selected feature
             values=self.feature_options   # Pass the list of feature options directly
         )
-        self.feature_dropdown.pack(pady=5)
-
-        # Help button for documentation in the right frame
-        help_button = ctk.CTkButton(left_frame, text="💡 Need Help? Open User Preferences Documentation Here... 💡", command=lambda: self.open_help("model_selection.html"),font=("Arial", 12))
-        help_button.pack(pady=20)
+        self.feature_dropdown.pack(padx=10, pady=10)
 
         # Create the canvas or image to display on the left (visualization or example image)
         self.canvas_label = ctk.CTkLabel(right_frame, text="Example of Extracted Features in Blender", font=("Arial", 16,"bold"))
         self.canvas_label.pack(pady=10)
-        
-        self.canvas_desc_label = ctk.CTkLabel(right_frame, text="Civic Builder creates polygonal representations of extracted feature footprints.\nStarting from 2D imagery it uses a computer vision to extract features.\nIt then creates 2D footprint geometry that can be exported into any common 3D program.", font=("Arial", 12))
-        self.canvas_desc_label.pack(pady=10)
+        self.canvas_desc_box = ctk.CTkTextbox(
+            right_frame,
+            font=("Arial", 12),
+            width=375,  # Set appropriate width
+            height=20,  # Optionally set height
+            wrap="word"
+        )
+
+        self.canvas_desc_box.insert(
+            "0.0",
+            text="Civic Builder extracts 3D feature fooprints from imagery."
+        )
+
+        self.canvas_desc_box.pack(pady=10)
 
         # Create the canvas to show the visualization (if relevant) on the left side
         self.canvas = ctk.CTkCanvas(right_frame, width=500, height=500, bg="white")
@@ -278,20 +360,39 @@ class App:
         right_frame.pack(side="left", padx=20, pady=10)
 
         # Add label for title in the right frame
-        self.paths_label = ctk.CTkLabel(right_frame, text="Input/Output Paths", font=("Arial", 16))
+        self.paths_label = ctk.CTkLabel(right_frame, text="Select Input/Output Paths", font=("Arial", 16))
         self.paths_label.pack(pady=10)
+        
+        # Create a frame for the description box and help button
+        desc_frame = ctk.CTkFrame(right_frame)
+        desc_frame.pack(pady=10, padx=20, fill="both", expand=True)
 
-        # Description for the canvas in the right frame
-        self.canvas_desc_label = ctk.CTkLabel(right_frame, text="While Civic Builder prefers formatted imagery with no annotations\nit is also possible to use images from various sources including Google Earth or GIS.", anchor="w", font=("Arial", 12))
-        self.canvas_desc_label.pack(pady=10)
+        self.canvas_desc_box = ctk.CTkTextbox(
+            desc_frame,
+            font=("Arial", 12),
+            width=300,  # Set appropriate width
+            height=100,  # Optionally set height
+            wrap="word"
+        )
 
-        # Initialize paths if not set
-        if not hasattr(self, 'input_folder_path'):
-            self.input_folder_path = ""
-        if not hasattr(self, 'output_2d_folder_path'):
-            self.output_2d_folder_path = ""
-        if not hasattr(self, 'output_3d_folder_path'):
-            self.output_3d_folder_path = ""
+        self.canvas_desc_box.insert(
+            "0.0",
+            text="Welcome to Civic Builder! In order to extract features, please select your imagery and  output paths. "
+                "\n"
+                "\n"
+                "For further details on valid imagery, access documentation by clicking the help buttons."
+        )
+
+        self.canvas_desc_box.grid(row=0, column=1, padx=10, pady=10)
+        
+        # Load help image and resize it
+        help_image = tk.PhotoImage(file="media/help.png").subsample(6, 6)  # Adjust subsample to resize
+
+        # Help button for documentation
+        help_button = ctk.CTkButton(desc_frame, image=help_image, text="", 
+                                    command=lambda: self.open_help("import_imagery.html"))
+        help_button.image = help_image  # Keep a reference to avoid garbage collection
+        help_button.grid(row=0, column=0, padx=10, pady=10)
 
         # Input folder selection
         self.input_label = ctk.CTkLabel(right_frame, text="Select Input Images Folder:")
@@ -306,7 +407,7 @@ class App:
         self.input_folder_button.pack(pady=5)
 
         # Output folder for Annotated 2D Images
-        self.output_2d_label = ctk.CTkLabel(right_frame, text="Select Output Folder for Annotated 2D Images:")
+        self.output_2d_label = ctk.CTkLabel(right_frame, text="Select Output Folder for Annotated 2D Imagery:")
         self.output_2d_label.pack(pady=5)
 
         self.output_2d_entry = ctk.CTkEntry(right_frame, placeholder_text="Output 2D Folder", width=300)
@@ -318,7 +419,7 @@ class App:
         self.output_2d_folder_button.pack(pady=5)
 
         # Output folder for 3D Footprint OBJ Files
-        self.output_3d_label = ctk.CTkLabel(right_frame, text="Select Output Folder for 3D Footprint OBJ Files:")
+        self.output_3d_label = ctk.CTkLabel(right_frame, text="Select Output Folder for Extracted 3D .OBJ Files:")
         self.output_3d_label.pack(pady=5)
 
         self.output_3d_entry = ctk.CTkEntry(right_frame, placeholder_text="Output 3D Folder", width=300)
@@ -328,18 +429,28 @@ class App:
         self.output_3d_folder_button = ctk.CTkButton(right_frame, text="Browse for 3D output folder...", 
                                                     command=lambda: self.update_path("output_3d"), width=300)
         self.output_3d_folder_button.pack(pady=10)
+        
+        self.next_steps_box = ctk.CTkTextbox(
+            right_frame,
+            font=("Arial", 12),
+            width=400,  # Set appropriate width
+            height=20,  # Optionally set height
+            wrap="word"
+        )
 
-        # Help button for documentation
-        help_button = ctk.CTkButton(right_frame, text="💡 Need Help? Open Imports/Outputs Documentation Here... 💡", 
-                                    command=lambda: self.open_help("import_imagery.html"), font=("Arial", 12))
-        help_button.pack(pady=10)
+        self.next_steps_box.insert(
+            "0.0",
+            text="Proceed to the \"Run Extraction\" screen to extract features from imagery."
+        )
+
+        self.next_steps_box.pack(padx=10, pady=10)
 
         # Left side image (Input example)
         self.canvas_desc_label_left = ctk.CTkLabel(left_frame, text="Examples of Valid Input Images:\nSatellite Imagery", font=("Arial", 14))
         self.canvas_desc_label_left.pack(pady=10)
 
         self.canvas_left = ctk.CTkCanvas(left_frame, width=300, height=300, bg="white")
-        self.canvas_left.pack(pady=10)
+        self.canvas_left.pack(pady=10,padx=10)
 
         img_left = tk.PhotoImage(file="media/inputoutput_example_1.png")
         self.canvas_left.create_image(150, 150, image=img_left)
@@ -347,14 +458,21 @@ class App:
 
         # Right side image (Output example)
         self.canvas_desc_label_right = ctk.CTkLabel(left_frame, text="Examples of Valid Input Images:\nGoogle Maps Screenshots", font=("Arial", 14))
-        self.canvas_desc_label_right.pack(pady=10)
+        self.canvas_desc_label_right.pack(pady=10,padx=10)
 
         self.canvas_right = ctk.CTkCanvas(left_frame, width=300, height=300, bg="white")
-        self.canvas_right.pack(pady=10)
+        self.canvas_right.pack(pady=10,padx=10)
 
         img_right = tk.PhotoImage(file="media/inputoutput_example_2.png")
         self.canvas_right.create_image(150, 150, image=img_right)
         self.canvas_right.image = img_right
+        
+        self.next_steps_box.pack(padx=10, pady=10)
+
+        # Button to go to the Run Extraction frame
+        self.run_extraction_button = ctk.CTkButton(right_frame, text="⏯️ Proceed to Run Extraction ⏯️", 
+                                                   command=self.show_run_frame, width=300,fg_color="green")
+        self.run_extraction_button.pack(pady=10)
 
         # Show the updated paths frame
         self.show_frame(self.paths_frame)
@@ -389,16 +507,38 @@ class App:
         right_frame.pack(side="left", padx=20, pady=10)
 
         # Add label for title in the right frame
-        self.post_processing_label = ctk.CTkLabel(right_frame, text="Post-Processing of Contours", font=("Arial", 14,"bold"))
+        self.post_processing_label = ctk.CTkLabel(right_frame, text="Post Processing of Contours", font=("Arial", 14,"bold"))
         self.post_processing_label.pack(pady=10)
 
-        # Add instructions label in the right frame
-        self.instructions_label = ctk.CTkLabel(right_frame, text="Select a post-processing algorithm to refine building contours.", font=("Arial", 12))
-        self.instructions_label.pack(anchor="w", padx=5, pady=1)
-        self.instructions_label = ctk.CTkLabel(right_frame, text="You can re-run the tool to generate new footprints and fine tune.", font=("Arial", 12))
-        self.instructions_label.pack(anchor="w", padx=5, pady=1)
-        self.instructions_label = ctk.CTkLabel(right_frame, text="Algorithms are suited to different goals, with varying levels of detail.", font=("Arial", 12))
-        self.instructions_label.pack(anchor="w", padx=5, pady=1)
+        # Add instructions textbox in the right frame
+        instructions_frame = ctk.CTkFrame(right_frame)
+        instructions_frame.pack(anchor="w", padx=5, pady=5, fill="both", expand=True)
+
+        self.instructions_textbox = ctk.CTkTextbox(
+            instructions_frame,
+            font=("Arial", 12),
+            width=300,  # Set appropriate width
+            height=100,  # Optionally set height
+            wrap="word"
+        )
+
+        self.instructions_textbox.insert(
+            "0.0",
+            text="Select a post-processing algorithm to refine building contours.\n"
+                 "You can re-run the tool to generate new footprints and fine tune.\n"
+                 "Algorithms are suited to different goals, with varying levels of detail."
+        )
+
+        self.instructions_textbox.grid(row=0, column=1, padx=10, pady=10)
+
+        # Load help image and resize it
+        help_image = tk.PhotoImage(file="media/help.png").subsample(6, 6)  # Adjust subsample to resize
+
+        # Help button for documentation
+        help_button = ctk.CTkButton(instructions_frame, image=help_image, text="", 
+                                    command=lambda: self.open_help("post_processing.html"))
+        help_button.image = help_image  # Keep a reference to avoid garbage collection
+        help_button.grid(row=0, column=0, padx=10, pady=10)
 
         # Dropdown for contour post-processing algorithms in the right frame
         self.post_process_options = [
@@ -425,34 +565,31 @@ class App:
         # Add labels for algorithm descriptions in the right frame
         algorithm_descriptions = [
             ("Simplify Contours", 
-            "Feature: Reduces the number of points in the contour, making it simpler and more efficient.\nCons: May remove sharp corners."),
+            "Default. Use when contours are too detailed."),
             
             ("Smooth Contours", 
-            "Feature: Smoothens the contour to reduce jagged edges and create a more natural shape.\nCons: May cause some loss of sharp features."),
+            "Use this when countours are too jagged."),
             
             ("Fill Holes", 
-            "Feature: Fills any holes inside the contours to create closed shapes.\nCons: May lose small details or features inside the contours."),
+            "Use when contours have many gaps."),
             
             ("Bounding Boxes", 
-            "Feature: Creates bounding boxes around each detected contour for easier identification.\nCons: Gets rid of orientation/rotation and fine details."),
+            "Use when simple bounding boxes are needed with low detail."),
             
             ("Convex Hulls", 
-            "Feature: Creates a convex hull around the contour, providing a simple boundary around the detected object.\nCons: May not follow the shape's exact contours, leading to loss of intricate details.")
+            "Use when simple convex hulls are needed with low detail.")
         ]
+        
+        self.canvas_desc_label = ctk.CTkLabel(right_frame, text="Available Algorithms:", font=("Arial", 14,"bold"))
+        self.canvas_desc_label.pack(pady=10)
         
         # Display descriptions of algorithms in the right frame
         for title, description in algorithm_descriptions:
-            title_label = ctk.CTkLabel(right_frame, text="Algorithm: "+title, font=("Arial", 14, "bold"))
-            title_label.pack(anchor="n", padx=30, pady=5)
+            title_label = ctk.CTkLabel(right_frame, text=title + ": " + description, font=("Arial", 12))
+            title_label.pack(anchor="w", padx=5)
 
-            description_label = ctk.CTkLabel(right_frame, text=description, font=("Arial", 12))
-            description_label.pack(anchor="w", padx=20, pady=5)
-            
-        help_button = ctk.CTkButton(right_frame, text="💡 Need Help? Open Post Processing Documentation Here... 💡", 
-                                    command=lambda: self.open_help("post_processing.html"), font=("Arial", 12))
-        help_button.pack(pady=20)
 
-        self.canvas_label = ctk.CTkLabel(left_frame, text="Example output of latest run:", font=("Arial", 14,"bold"))
+        self.canvas_label = ctk.CTkLabel(left_frame, text="Latest 2D Output:", font=("Arial", 14,"bold"))
         self.canvas_label.pack(pady=10)
         
         self.canvas_desc_label = ctk.CTkLabel(left_frame, text="Post processed representation of the latest run of Civic Builder.", font=("Arial", 12))
@@ -470,52 +607,130 @@ class App:
 
     def show_run_frame(self):
         """Show Run Extraction section."""
-        
+    
         self.depopulate_frame(self.run_frame)  # depopulate frame before redrawing
-        
+
+        # Configure grid layout for the run_frame
+        self.run_frame.grid_rowconfigure(0, weight=1)  # Top rows for main content
+        self.run_frame.grid_columnconfigure(0, weight=1)  # Left frame
+        self.run_frame.grid_columnconfigure(1, weight=1)  # Log frame
+        self.run_frame.grid_rowconfigure(1, weight=0)  # Bottom row for progress bar
+
         # Create a frame for the left column (controls)
         left_frame = ctk.CTkFrame(self.run_frame)
-        left_frame.pack(side="left", padx=20, pady=10)
+        left_frame.grid(row=0, column=0, padx=20, pady=10, sticky="nsew")
 
         # Run title label
-        self.run_title_label = ctk.CTkLabel(left_frame, text="Run Feature Extraction", font=("Arial", 16))
+        self.run_title_label = ctk.CTkLabel(left_frame, text="Feature Extraction", font=("Arial", 16))
         self.run_title_label.pack(pady=10)
         
-        # Run and extras
-        self.run_label = ctk.CTkLabel(left_frame, text="After setting options, run the extraction from this window.\n\nData to be extracted will include:\nAnnotated Images with Detection Confidence Metrics\nGenerated .OBJ footprint files.", wraplength=550, pady=10)
-        self.run_label.pack(pady=10, padx=10)
-        
-        self.run_button = ctk.CTkButton(left_frame, text="Run Feature Extraction", command=self.run_feature_extraction, fg_color="green")
+        # Create a frame for the description box and help button
+        desc_frame = ctk.CTkFrame(left_frame)
+        desc_frame.pack(pady=10, padx=20, fill="both", expand=True)
+
+        # Description box using CTkTextbox
+        self.canvas_desc_box = ctk.CTkTextbox(
+            desc_frame,
+            font=("Arial", 12),
+            width=200,  # Set appropriate width
+            height=160,  # Optionally set height
+            wrap="word"
+        )
+
+        self.canvas_desc_box.insert(
+            "0.0",
+            text=(
+                "After setting options, run the extraction from this window.\n\n"
+                "Data to be extracted will include:\n"
+                "1. Annotated Images with Detection Confidence Metrics.\n"
+                "2. Generated .OBJ footprint files.\n\n"
+                "Data will be saved to the output folders specified."
+                
+            )
+        )
+        self.canvas_desc_box.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
+
+        # Load help image and resize it
+        help_image = tk.PhotoImage(file="media/help.png").subsample(6, 6)  # Adjust subsample to resize
+
+        # Help button for documentation
+        help_button = ctk.CTkButton(desc_frame, image=help_image, text="", 
+                                    command=lambda: self.open_help("detection_process.html"))
+        help_button.image = help_image  # Keep a reference to avoid garbage collection
+        help_button.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+        self.run_button = ctk.CTkButton(left_frame, text="⏯️ Run Feature Extraction ⏯️", command=self.run_feature_extraction, fg_color="green", font=("Arial", 16))
         self.run_button.pack(pady=10)
-        
-        self.progressbar_label = ctk.CTkLabel(left_frame, text="Progress of Extraction Process:", wraplength=550, pady=10)
-        self.progressbar_label.pack(pady=10, padx=10)
-        
-        self.progressbar = ctk.CTkProgressBar(master=left_frame)
-        self.progressbar.pack(padx=20, pady=10)
-        self.progressbar.set(0)
-        self.bar_progress = 0
-        
-        help_button = ctk.CTkButton(left_frame, text="💡 Need Help? Open Extraction Documentation Here... 💡", command=lambda: self.open_help("export_output.html"), font=("Arial", 12))
-        help_button.pack(pady=10)
-        
+
         # Create a frame for the log in the second column (log_frame)
         log_frame = ctk.CTkFrame(self.run_frame)
-        log_frame.pack(side="left", padx=20, pady=10, fill="both", expand=True)  # Fill the available space
+        log_frame.grid(row=0, column=1, padx=20, pady=10, sticky="nsew")
 
         # Log window label
         self.log_label = ctk.CTkLabel(log_frame, text="Extraction Log:", font=("Arial", 14))
         self.log_label.pack(pady=10)
 
         # Create a Text widget for the log window (for real-time print output)
-        self.log_text = tk.Text(log_frame, height=15, width=80, wrap=tk.WORD, state=tk.DISABLED, bg="#333333", fg="white", font=("Arial", 12))
+        self.log_text = tk.Text(log_frame, height=15, width=60, wrap=tk.WORD, state=tk.DISABLED, bg="#333333", fg="white", font=("Arial", 12))
         self.log_text.pack(padx=20, pady=10, fill="both", expand=True)  # Make it expand to fill space
 
         # Redirect print statements to the log window
         self.redirect_output_to_log()
 
+        # Create a frame for progress bar and feedback at the bottom
+        progress_frame = ctk.CTkFrame(self.run_frame)
+        progress_frame.grid(row=1, column=0, columnspan=2, padx=20, pady=10, sticky="ew")  # Span both columns
+
+        self.progressbar_label = ctk.CTkLabel(progress_frame, text="Progress of Extraction Process:", wraplength=550, pady=10)
+        self.progressbar_label.pack(pady=10)
+
+        self.progressbar = ctk.CTkProgressBar(master=progress_frame)
+        self.progressbar.pack(padx=20, pady=10, fill="x")  # Stretch to fill the frame
+        self.progressbar.set(0)  # Initialize progress bar
+
+        self.feedback_label = ctk.CTkLabel(progress_frame, text="", font=("Arial", 14), text_color="green")
+        self.feedback_label.pack(pady=10)
+
+        self.bar_progress = 0
+
         # Show the updated frame
         self.show_frame(self.run_frame)
+            
+        # Create a frame for action buttons under the progress bar
+        actions_frame = ctk.CTkFrame(progress_frame)
+        actions_frame.pack(padx=20, pady=10, fill="x", expand=True)
+        
+        self.next_steps_label = ctk.CTkLabel(actions_frame, text="Next Steps Shortcuts:", wraplength=550, pady=10)
+        self.next_steps_label.grid(row=0, column=1, padx=20, pady=10, sticky="n")
+
+        # Button to open the export directory for 3D OBJ files
+        open_export_button = ctk.CTkButton(
+            actions_frame, 
+            text="📂 Open 3D Export Directory", 
+            command=self.open_export_directory, 
+        )
+        open_export_button.grid(row=1, column=0, padx=20, pady=10, sticky="w")
+
+        # Button to open Blender application
+        open_blender_button = ctk.CTkButton(
+            actions_frame, 
+            text="🖌️ Open Blender and Visualize Output", 
+            command=self.open_blender, 
+        )
+        open_blender_button.grid(row=1, column=1, padx=20, pady=10, sticky="n")
+
+        # Button to go to the detection configuration frame
+        open_config_button = ctk.CTkButton(
+            actions_frame, 
+            text="⚙️ Configure Civic Builder Further", 
+            command=self.show_config_frame, 
+        )
+        open_config_button.grid(row=1, column=2, padx=20, pady=10, sticky="e")
+        
+        # Configure columns to evenly distribute the buttons
+        actions_frame.grid_columnconfigure(0, weight=1)  # Left column
+        actions_frame.grid_columnconfigure(1, weight=1)  # Center column
+        actions_frame.grid_columnconfigure(2, weight=1)  # Right column
 
     def redirect_output_to_log(self):
         """Redirect the print output to the log window (Text widget)."""
@@ -544,23 +759,30 @@ class App:
         """Set the window icon."""
         try:
             self.root.iconbitmap("media/civic_builder.ico")  # Use .ico format for Windows
-            print("Icon set using .ico format")
         except Exception as e:
-            print(f"Error setting icon: {e}")
+            print(f"Error setting Civic Builder icon: {e}")
 
     def run_feature_extraction(self):
         """Run the feature extraction."""
         
         #pre_run_test()  # Run the pre-run test
+        
+        # Clear log before starting
+        self.log_text.config(state=tk.NORMAL)
+        self.log_text.delete("1.0", tk.END)
+        self.log_text.config(state=tk.DISABLED)
+        
+        # Clear feedback label at the start
+        self.feedback_label.configure(text="", font=("Arial", 14))
 
-        if not self.model_var or not self.feature_var:
+        if not self.model_var or not self.feature_var.get():
             # Show a popup message if model or feature have not been selected
             tk.messagebox.showerror("Error", "Detection model and target feature must be selected!")
             return  # Stop further execution of the function
         
-        if not self.input_entry or not self.output_2d_entry or not self.output_3d_entry:
+        if not self.input_entry.get() or not self.output_2d_entry.get() or not self.output_3d_entry.get():
             # Show a popup message if at least one of the folders is not selected
-            tk.messagebox.showerror("Error", "Both input and output folders must be selected!")
+            tk.messagebox.showerror("Error", "All input and output folders must be selected before run!")
             return  # Stop further execution of the function
         
         model_selection = self.model_var.get()
@@ -570,6 +792,7 @@ class App:
         output_3d_folder = self.output_3d_entry.get()
 
         # set global variable to use in detect_buildings.py
+        global export_post_process_algorithm
         export_post_process_algorithm = self.post_process_algorithm.get()
         
         errors = []
@@ -594,6 +817,8 @@ class App:
                 print(f"ERROR: {error}")
             return
         
+        self.save_preferences_after_run() # Save the preferences after running the extraction
+        
         print("======\nSelected Parameters:\n======",
               "\nModel selection --> ",model_selection,
               "\nExtract feature --> ", extract_feature,
@@ -610,14 +835,14 @@ class App:
         # Create and start a new thread for the extraction process
         extraction_thread = Thread(
             target=self.extract_features_in_thread,
-            args=(model_selection, extract_feature, input_folder, output_2d_folder,output_3d_folder,export_post_process_algorithm)
+            args=(model_selection, extract_feature, input_folder, output_2d_folder,output_3d_folder,export_post_process_algorithm,)
         )
-        extraction_thread.start()
+        extraction_thread.start()    
         
     def extract_features_in_thread(self, model_selection, extract_feature, input_folder,output_2d_folder,output_3d_folder,export_post_process_algorithm):
         """Perform the feature extraction in a separate thread."""
         try:
-            extract_features(model_selection, extract_feature, input_folder, output_2d_folder,output_3d_folder, export_post_process_algorithm,self.progressbar)
+            extract_features(model_selection, extract_feature, input_folder, output_2d_folder,output_3d_folder, export_post_process_algorithm,self.progressbar,self.feedback_label)
         except Exception as e:
             # Handle exceptions and inform the user
             tk.messagebox.showerror("Error", f"An error occurred: {e}")
@@ -629,7 +854,7 @@ class App:
         """Open documentation given a specified page."""
         documentation_path = path.abspath('../documentation/'+ page_name)
         documentation_path = documentation_path.replace("\\", "/")
-        open(f'file:///{documentation_path}')
+        webbrowser.open(f'file:///{documentation_path}')
 
     def show_about(self):
         """Show about message."""
@@ -649,7 +874,7 @@ class App:
         title_label.pack(pady=10)
 
         # Version
-        version_label = ctk.CTkLabel(self.about_window, text="Version 0.1", font=("Arial", 12))
+        version_label = ctk.CTkLabel(self.about_window, text="Version 1.0", font=("Arial", 12))
         version_label.pack(pady=5)
 
         # Description
@@ -683,17 +908,16 @@ class App:
         # Fallback, get the path to the first file in the 'output_2d_folder_path' directory
         example_image_path = 'media/detection_annotation_example.jpg'
         image_path = example_image_path
-
+        
         if path.exists(self.output_2d_folder_path):
             files = [f for f in listdir(self.output_2d_folder_path) if path.isfile(path.join(self.output_2d_folder_path, f))]
             if files:
                 image_path = path.join(self.output_2d_folder_path, files[0])
             else:
-                print(f"No images found in directory: {self.output_2d_folder_path}")
+                image_path = example_image_path
         else:
-            print(f"Directory not found: {self.output_2d_folder_path}")
+            image_path = example_image_path
             
-
         img = imread(image_path)
 
         # Convert to RGB (from BGR used by OpenCV)
@@ -707,3 +931,37 @@ class App:
 
         # Display the image on canvas
         self.canvas.create_image(0, 0, anchor='nw', image=self.img_tk)
+        
+    def open_export_directory(self):
+        """Opens the directory where the 3D OBJ files are exported."""
+        export_dir = self.output_3d_entry.get()  # Ensure this is defined elsewhere
+        if export_dir and path.isdir(export_dir):
+            startfile(export_dir)  # On Windows; use subprocess for Mac/Linux
+        else:
+            tk.messagebox.showerror("Error", "Export directory not found or invalid.")
+
+    def open_blender(self):
+        """Opens Blender application and runs a script named blender_main."""
+        self.blender_path = r"C:\\Program Files\\Blender Foundation\\Blender 4.0\\blender.exe"  # Default path
+        if not path.exists(self.blender_path):
+            blender_path = tk.filedialog.askopenfilename(
+                title="Locate Blender Executable", 
+                filetypes=[("Executable Files", "*.exe")]
+            )
+        if self.blender_path and path.exists(self.blender_path):
+            print("Default Blender path found. Starting blender...")
+            script_path = path.abspath("blender/blender_main.py")  # path to civic builder addon script to use in blender
+            if path.exists(script_path):
+                try:
+                    subprocess.Popen([self.blender_path, "--python", script_path])  # Open Blender and run the script
+                    print("Civic Builder configuration script found. Setting up the Blender environment...")
+                except Exception as e:
+                    tk.messagebox.showerror("Error", f"An error occurred while opening Blender: {e}")
+            else:
+                tk.messagebox.showerror("Error", f"Blender script not found: {script_path}")
+        else:
+            tk.messagebox.showerror("Error", "Blender executable not found.")
+
+    def show_config_frame(self):
+        """Navigates to the detection configuration frame."""
+        self.show_frame(self.detection_frame)

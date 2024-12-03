@@ -2,7 +2,7 @@ from sys import exit
 
 from customtkinter import CTk
 
-from user_interface import App  # App contains the main user interface
+from user_interface import App  # App contains the main user interface.
 
 def main():
     """
@@ -12,10 +12,10 @@ def main():
     try:
         print("Starting Civic Builder: Procedural City Modeling...")
 
-        # Set up the Tkinter root window
+        # Set up the Tkinter root window and initialize App.
         root = CTk()
-        app = App(root)  # initialize the App class
-        root.mainloop()  # Start the GUI event loop
+        app = App(root)
+        root.mainloop() 
 
     except KeyboardInterrupt:
         print("\Keyboard interrupted initiatilization. Exiting...")

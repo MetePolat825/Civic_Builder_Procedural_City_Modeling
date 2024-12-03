@@ -54,7 +54,7 @@ def flatten_contours(contours):
     
     return flattened_contours
 
-def extract_features(model_selection, extract_feature, input_folder, output_2d_folder, output_3d_folder, export_post_process_algorithm, progressbar):
+def extract_features(model_selection, extract_feature, input_folder, output_2d_folder, output_3d_folder, export_post_process_algorithm, progressbar,feedback_label):
     """
     Perform feature extraction from satellite images based on the selected model and feature type.
     
@@ -66,6 +66,7 @@ def extract_features(model_selection, extract_feature, input_folder, output_2d_f
         output_3d_folder (str): Path to the output folder for 3D OBJ files.
         export_post_process_algorithm (str): Selected post-processing algorithm.
         progressbar (CTkProgressBar): Progress bar to update during processing.
+        feedback_label (CTkLabel): Label to display feedback messages upon completion of extraction.
     """
     
     # Configure model weights based on selection
@@ -109,8 +110,11 @@ def extract_features(model_selection, extract_feature, input_folder, output_2d_f
     weight_per_image = 1 / count_of_images
     progress_value = 0  # start progress from 0
     
+    count_of_extracted = 0 # count of images processed
+    
     # Iterate over each image file in the folder
     for image_file in listdir(input_folder):
+        count_of_extracted += 1
         print(f"Processing image: {image_file}")
         image_path = path.join(input_folder, image_file)
         img = imread(image_path)
@@ -188,6 +192,24 @@ def extract_features(model_selection, extract_feature, input_folder, output_2d_f
         print(f"Succesfully extracted features: {image_file}\n")
         
         progress_value += weight_per_image
-        progressbar.set(progress_value)
+        progressbar.set(progress_value) 
+        
+        if progress_value >= 1.0:   
+            feedback_label.configure(
+                text="✅ Extraction Completed Successfully!\nNext Steps:\n1. Validate output 2D and 3D files manually.\n2. Re-run tool using available configurations below.\n3. Use the exported data for 3D visualization in Blender.",
+                font=("Arial", 16),
+                text_color="green",
+                wraplength=550
+            ) 
+        else:
+            # Display feedback message
+            elapsed_time = time() - start_time
+            estimated_total_time = elapsed_time / progress_value
+            remaining_time = estimated_total_time - elapsed_time
+            feedback_label.configure(
+                text=f"🚀 Extracted {count_of_extracted} images out of {count_of_images}.\nEstimated remaining time: {remaining_time:.2f} seconds.",
+                font=("Arial", 18),
+            )
+
 
     print(f"=====\nSUCCESS:Extracted features of type {extract_feature} from {len(listdir(input_folder))} images in {time()-start_time:.2f} seconds.\n=====")

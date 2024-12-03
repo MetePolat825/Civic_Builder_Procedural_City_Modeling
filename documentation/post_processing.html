@@ -3,109 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Export of OBJ Format</title>
+    <title>Civic Builder Documentation</title>
     <link rel="stylesheet" href="styles.css"> <!-- Link to external CSS file -->
 </head>
+
 <body>
-    
-    <div class="content">
-        <h1 class="center_txt"><b>Civic Builder Documentation</b></h1>
+    <div class = "main-container">
+        <div class="content">
+            <h1 class="center_txt"><b>Civic Builder Documentation</b></h1>
 
-        <hr>
+            <hr>
+            <h1 class="center_txt"><b>Post Processing</b></h1>
+            <hr>
 
-        <h1 class>Post Processing Your Extracted Features</h1>
-        <p>To export your results in OBJ format, follow these instructions:</p>
-        <p>[Placeholder text explaining the export process goes here.]</p>
-        <p><a href="index.html">Back to Main Page</a></p>
+            <p style="text-align: justify;">
+                The post-processing step in Civic Builder enhances the quality and usability of generated 3D footprints. 
+                The tool automatically applies several optimization techniques to refine the raw data extracted during the detection process. 
+                Users can leverage these built-in features to clean, simplify, and structure the output for downstream applications like GIS tools, game engines, or simulation software.
+            </p>
 
-        <footer class="footer">
-            <div>
+            <p style="text-align: justify;">
+                For example, some users may not need the extra details and may opt for the bounding boxes algorithm to simplify the output. 
+                Others may require more detailed contours and choose to smooth the contours for a more refined output.
+            </p>
 
-                <p>Thank you for using Civic Builder!</p>
-                <p>Civic Builder is free to use and is an educational project still in development.</p>
-                <p>You can follow the development of Civic Builder here:</p>
-                <a href="https://github.com/MetePolat825/Civic_Builder_Procedural_City_Modeling">https://github.com/MetePolat825/Civic_Builder_Procedural_City_Modeling</a>
+            <h2>Common Issues and Solutions</h2>
+            <ul>
+                <li><b>Contours Too Simplified:</b> Select the simplify contours algorithm, which will do a simple pass and retain most geometry.</li>
+                <li><b>Contours Too Complex:</b> Ensure input imagery aligns with the resolution specified in the detection step.</li>
+                <li><b>Loss of Details:</b> In some cases, post processing may remove important details with options such as "Bounding Boxes" or "Smooth Contours". In this case it is best to switch to the default "Simplify Contours" algorithm.</li>
+            </ul>
 
-                <br>
-                <br>
-                
-                <p>© 2024 Civic Builder. All Rights Reserved.</p>
-                <p>
-                    <a href="privacy_policy.html">Privacy Policy</a> | 
-                    <a href="terms_of_service.html">Terms of Service</a>
-                </p>
-                <p>Contact for support and suggestions: <a href="mailto:mcp140@student.aru.ac.uk">mcp140@student.aru.ac.uk</a></p>
-                <p>Follow on 
-                    <a href="https://twitter.com" target="_blank">Twitter</a>, 
-                    <a href="https://facebook.com" target="_blank">Facebook</a>, 
-                    <a href="https://linkedin.com" target="_blank">LinkedIn</a>
-                </p>
-            </div>
-        </footer>
-    
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                const sidebarToggle = document.getElementById("sidebarToggle");
-                const sidebar = document.getElementById("sidebar");
-    
-                sidebarToggle.addEventListener("click", function() {
-                    if (sidebar.style.display === "block") {
-                        sidebar.style.display = "none"; // Hide the sidebar
-                    } else {
-                        sidebar.style.display = "block"; // Show the sidebar
-                    }
+            <h2>How to Enable Post Processing</h2>
+            <ol>
+                <li>In the **Preferences** window, select the desired post-processing algorithms you wish to apply.</li>
+                <li>Ensure the options are tailored to your output needs (e.g., select "Fill Holes" for fragmented datasets).</li>
+                <li>Run the detection process. Post-processing will automatically apply to the output before saving.</li>
+            </ol>
+            <img src="media/post_process_step1.PNG" alt="Post Processing Interface" class="center_img">
+
+
+            <h2>Available Post-Processing Options</h2>
+
+            <p>Civic Builder offers the following inbuilt post processing algorithms: </p>
+
+            <h3>Simplify Contours</h3>
+            <p>
+                Default mode. This function reduces the number of points in a contour, preserving the overall shape while minimizing unnecessary details. 
+                Simplification ensures smaller file sizes and faster processing in 3D environments.
+            </p>
+
+            <h3>Smooth Contours</h3>
+            <p>
+                Smoothing approximates contours with fewer points, reducing jagged edges in 3D models. 
+                Users can control the level of smoothing via the epsilon factor for precise customization.
+            </p>
+
+            <h3>Fill Holes</h3>
+            <p>
+                Automatically fills gaps or holes in binary masks, producing cleaner and more complete building footprints. 
+                This step is essential when dealing with fragmented data or noisy imagery.
+            </p>
+
+            <h3>Generate Bounding Boxes</h3>
+            <p>
+                Automatically creates bounding boxes around detected objects, providing spatial boundaries for buildings or other features. 
+                Bounding boxes are ideal for GIS mapping and object labeling.
+            </p>
+
+            <h3>Convex Hulls</h3>
+            <p>
+                Computes the convex hull for each contour, ensuring no concave regions. Convex hulls are particularly useful for geometric simplifications in architecture and simulation.
+            </p>
+
+            <p><a href="index.html">Back to Main Page</a></p>
+
+            <hr>
+            <footer class="footer">
+                <div>
+
+                    <p>Thank you for using Civic Builder!</p>
+                    <p>Civic Builder is free to use and is an educational project still in development.</p>
+                    <p>You can follow the development of Civic Builder here:</p>
+                    <a href="https://github.com/MetePolat825/Civic_Builder_Procedural_City_Modeling">https://github.com/MetePolat825/Civic_Builder_Procedural_City_Modeling</a>
+
+                    <br>
+                    <br>
+                    
+                    <p>© 2024 Civic Builder. All Rights Reserved.</p>
+                    <p>
+                        <a href="privacy_policy.html">Privacy Policy</a> | 
+                        <a href="terms_of_service.html">Terms of Service</a>
+                    </p>
+                    <p>Contact for support and suggestions: <a href="mailto:mcp140@student.aru.ac.uk">mcp140@student.aru.ac.uk</a></p>
+                    <p>Follow on 
+                        <a href="https://twitter.com" target="_blank">Twitter</a>, 
+                        <a href="https://facebook.com" target="_blank">Facebook</a>, 
+                        <a href="https://linkedin.com" target="_blank">LinkedIn</a>
+                    </p>
+                </div>
+            </footer>
+        
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    const sidebarToggle = document.getElementById("sidebarToggle");
+                    const sidebar = document.getElementById("sidebar");
+        
+                    sidebarToggle.addEventListener("click", function() {
+                        if (sidebar.style.display === "block") {
+                            sidebar.style.display = "none"; // Hide the sidebar
+                        } else {
+                            sidebar.style.display = "block"; // Show the sidebar
+                        }
+                    });
                 });
-            });
-        </script>
+            </script>
 
-    </div>
+        </div>
 
-
-    <div class="sidebar" id="sidebar">
-        <img src = "media/civic_builder.png" alt="image of the civic builder logo" class= "center_img">
-        <h2 class="sidebar_header"><b>CIVIC BUILDER v 0.1</b></h2>
-        <input type="text" id="tocSearch" placeholder="Search...">
-        <script>
-            document.getElementById('tocSearch').addEventListener('input', function() {
-                const query = this.value.toLowerCase();
-                document.querySelectorAll('.sidebar ul li').forEach(item => {
-                    const text = item.textContent.toLowerCase();
-                    item.style.display = text.includes(query) ? 'block' : 'none';
+        <div class="sidebar" id="sidebar">
+            <img src = "media/civic_builder.png" alt="placeholder image of the civic builder logo" class= "center_img_sidebar_hdr">
+            <h2 class="sidebar_header"><b>CIVIC BUILDER v. 0.3</b></h2>
+            <input type="text" id="tocSearch" placeholder="Search...">
+            <script>
+                document.getElementById('tocSearch').addEventListener('input', function() {
+                    const query = this.value.toLowerCase();
+                    document.querySelectorAll('.sidebar ul li').forEach(item => {
+                        const text = item.textContent.toLowerCase();
+                        item.style.display = text.includes(query) ? 'block' : 'none';
+                    });
                 });
-            });
-        </script>
-        <h2>Table of Contents</h2>
+            </script>
+
+            <p>
+                <a href="index.html">Return to Main Page</a>
+            </p>
+
+            <h2>Table of Contents</h2>
 
 
-        <h2>1. Overview</h2>
-        <ul>
-            <li><a href="about.html">1.1 - About Civic Builder</a></li>
-            <li><a href="version_history.html">1.2 - Version History & Updates</a></li>
-            <li><a href="getting_started.html">1.3 - Getting Started with Civic Builder</a></li>
-            <li><a href="installation_setup.html">1.4 - Installation & Setup</a></li>
-            <li><a href="web_application_guide.html">1.5 - Using the Web Application</a></li>
-            <li><a href="contributing.html">1.6 - Contributing</a></li>
-            <li><a href="troubleshooting_faq.html">1.7 - Troubleshooting & FAQs</a></li>
-            <li><a href="acknowledgments.html">1.8 - Acknowledgments</a></li>
-        </ul>
+            <h2>1. Overview</h2>
+            <ul>
+                <li><a href="about.html">1.1 - About Civic Builder</a></li>
+                <li><a href="version_history.html">1.2 - Version History & Updates</a></li>
+                <li><a href="getting_started.html">1.3 - Getting Started with Civic Builder</a></li>
+                <li><a href="installation_setup.html">1.4 - Installation & Setup</a></li>
+                <li><a href="web_application_guide.html">1.5 - Using the Web Application</a></li>
+                <li><a href="contributing.html">1.6 - Contributing</a></li>
+                <li><a href="troubleshooting_faq.html">1.7 - Troubleshooting & FAQs</a></li>
+                <li><a href="acknowledgments.html">1.8 - Acknowledgments</a></li>
+            </ul>
 
-        <h2>2. Standalone Component</h2>
-        <ul>
-            <li><a href="import_imagery.html">2.1 - Import Imagery</a></li>
-            <li><a href="model_selection.html">2.2 - User Preferences and Model Selection</a></li>
-            <li><a href="detection_process.html">2.3 - Detection Process</a></li>
-            <li><a href="post_processing.html">2.4 - Post Processing of Output</a></li>
-            <li><a href="export_output.html">2.5 - Export of Output</a></li>
-        </ul>
+            <h2>2. Standalone Component</h2>
+            <ul>
+                <li><a href="import_imagery.html">2.1 - Import Imagery</a></li>
+                <li><a href="model_selection.html">2.2 - User Preferences and Model Selection</a></li>
+                <li><a href="detection_process.html">2.3 - Detection Process</a></li>
+                <li><a href="post_processing.html">2.4 - Post Processing of Output</a></li>
+                <li><a href="export_output.html">2.5 - Export of Output</a></li>
+            </ul>
 
-        <h2>3. Blender Plugin</h2>
-        <ul>
-            <li><a href="plugin_overview.html">3.1 - Blender Plugin Overview</a></li>
-            <li><a href="import_feature_data.html">3.2 - Importing Feature Data</a></li>
-            <li><a href="user_options.html">3.3 - User Controllable Options</a></li>
-            <li><a href="geometry_nodes_integration.html">3.4 - Geometry Nodes Integration</a></li>
-            <li><a href="adding_extra_features.html">3.5 - Adding Extra Features</a></li>
-        </ul>    
+            <h2>3. Blender Plugin</h2>
+            <ul>
+                <li><a href="plugin_overview.html">3.1 - Blender Plugin Overview</a></li>
+                <li><a href="import_feature_data.html">3.2 - Importing Feature Data</a></li>
+                <li><a href="user_options.html">3.3 - User Controllable Options</a></li>
+                <li><a href="geometry_nodes_integration.html">3.4 - Geometry Nodes Integration</a></li>
+                <li><a href="adding_extra_features.html">3.5 - Adding Extra Features</a></li>
+                <p>Civic Builder 0.2</p>
+            </ul>   
+        </div>
     </div>
 
 

@@ -3,109 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Export of OBJ Format</title>
+    <title>Civic Builder Documentation</title>
     <link rel="stylesheet" href="styles.css"> <!-- Link to external CSS file -->
 </head>
+
 <body>
-    
-    <div class="content">
-        <h1 class="center_txt"><b>Civic Builder Documentation</b></h1>
+    <div class = "main-container">
+        <div class="content">
+            <h1 class="center_txt"><b>Civic Builder Documentation</b></h1>
 
-        <hr>
+            <hr>
+            <h1 class="center_txt"><b>Geometry Nodes Integration</b></h1>
+            <hr>
+            <p>
+                The <strong>Geometry Nodes Integration</strong> feature in the Civic Builder plugin will leverage Blender's 
+                <a href="https://docs.blender.org/manual/en/latest/modeling/geometry_nodes/index.html" target="_blank">Geometry Nodes</a> 
+                system to add procedural detail and additional levels of detail (LODs) to the generated features. This section outlines 
+                the planned functionality for this integration.
+            </p>
 
-        <h1 class>About Civic Builder</h1>
-        <p>To export your results in OBJ format, follow these instructions:</p>
-        <p>[Placeholder text explaining the export process goes here.]</p>
-        <p><a href="index.html">Back to Main Page</a></p>
-
-        <footer class="footer">
             <div>
-
-                <p>Thank you for using Civic Builder!</p>
-                <p>Civic Builder is free to use and is an educational project still in development.</p>
-                <p>You can follow the development of Civic Builder here:</p>
-                <a href="https://github.com/MetePolat825/Civic_Builder_Procedural_City_Modeling">https://github.com/MetePolat825/Civic_Builder_Procedural_City_Modeling</a>
-
-                <br>
-                <br>
-                
-                <p>© 2024 Civic Builder. All Rights Reserved.</p>
+                <h2>Overview</h2>
                 <p>
-                    <a href="privacy_policy.html">Privacy Policy</a> | 
-                    <a href="terms_of_service.html">Terms of Service</a>
+                    This feature aims to enhance the generated geometry by using procedural nodes to:
                 </p>
-                <p>Contact for support and suggestions: <a href="mailto:mcp140@student.aru.ac.uk">mcp140@student.aru.ac.uk</a></p>
-                <p>Follow on 
-                    <a href="https://twitter.com" target="_blank">Twitter</a>, 
-                    <a href="https://facebook.com" target="_blank">Facebook</a>, 
-                    <a href="https://linkedin.com" target="_blank">LinkedIn</a>
-                </p>
+                <ul>
+                    <li>Add additional detail to buildings, such as windows, doors, or decorative elements.</li>
+                    <li>Create varying Levels of Detail (LODs) for optimized performance in large-scale scenes.</li>
+                    <li>Apply procedural materials or effects based on geometry characteristics.</li>
+                </ul>
             </div>
-        </footer>
-    
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                const sidebarToggle = document.getElementById("sidebarToggle");
-                const sidebar = document.getElementById("sidebar");
-    
-                sidebarToggle.addEventListener("click", function() {
-                    if (sidebar.style.display === "block") {
-                        sidebar.style.display = "none"; // Hide the sidebar
-                    } else {
-                        sidebar.style.display = "block"; // Show the sidebar
-                    }
+
+            <div>
+                <h2>Planned Features</h2>
+                <p>Here are the placeholders for the planned functionality:</p>
+
+                <h3>1. Procedural Detail Generation</h3>
+                <p>
+                    Using Geometry Nodes, details like windows, trims, or parapets can be procedurally added to building facades. 
+                    This will allow users to customize the level of detail without manually modeling each feature.
+                </p>
+                <ul>
+                    <li><strong>Property:</strong> <code>detail_level</code></li>
+                    <li><strong>Default Value:</strong> Placeholder (to be determined)</li>
+                </ul>
+
+                <h3>2. Level of Detail (LOD) Management</h3>
+                <p>
+                    This feature will automatically generate multiple LODs for buildings, enabling efficient rendering in large scenes.
+                    Users can specify the number of LOD levels and the geometry simplification method.
+                </p>
+                <ul>
+                    <li><strong>Properties:</strong></li>
+                    <ul>
+                        <li><code>lod_count</code>: Number of LOD levels</li>
+                        <li><code>lod_simplification_method</code>: Algorithm for geometry simplification</li>
+                    </ul>
+                    <li><strong>Default Values:</strong></li>
+                    <ul>
+                        <li><code>lod_count</code>: Placeholder (to be determined)</li>
+                        <li><code>lod_simplification_method</code>: Placeholder (to be determined)</li>
+                    </ul>
+                </ul>
+
+                <h3>3. Procedural Material Application</h3>
+                <p>
+                    Procedural materials based on geometry features will be assigned using Geometry Nodes. For example, different 
+                    textures for walls, roofs, or trim elements can be applied procedurally.
+                </p>
+                <ul>
+                    <li><strong>Property:</strong> <code>procedural_material</code></li>
+                    <li><strong>Default Value:</strong> Placeholder (to be determined)</li>
+                </ul>
+            </div>
+
+            <div>
+                <h2>Interface and Workflow</h2>
+                <p>
+                    The Geometry Nodes Integration will provide an intuitive interface for users to:
+                </p>
+                <ul>
+                    <li>Select prebuilt Geometry Node setups for specific use cases.</li>
+                    <li>Adjust parameters such as LOD levels, detail density, or material settings.</li>
+                    <li>Preview procedural changes in real-time within Blender's viewport.</li>
+                </ul>
+            </div>
+
+            <div>
+                <h2>Example Use Cases</h2>
+                <p>Here are a few examples of how this feature could be used:</p>
+                <ul>
+                    <li><strong>City Simulation:</strong> Generate high-detail facades for buildings near the camera and low-detail geometry for distant ones.</li>
+                    <li><strong>Game Development:</strong> Create LODs for seamless integration into game engines.</li>
+                    <li><strong>Architectural Visualization:</strong> Apply procedural trims and details for photorealistic renders.</li>
+                </ul>
+            </div>
+
+            <div>
+                <strong>Note:</strong> This feature is currently under development. The final implementation and parameters may vary.
+                Stay tuned for updates
+            </div>
+
+            <p><a href="index.html">Back to Main Page</a></p>
+
+            <hr>
+            <footer class="footer">
+                <div>
+
+                    <p>Thank you for using Civic Builder!</p>
+                    <p>Civic Builder is free to use and is an educational project still in development.</p>
+                    <p>You can follow the development of Civic Builder here:</p>
+                    <a href="https://github.com/MetePolat825/Civic_Builder_Procedural_City_Modeling">https://github.com/MetePolat825/Civic_Builder_Procedural_City_Modeling</a>
+
+                    <br>
+                    <br>
+                    
+                    <p>© 2024 Civic Builder. All Rights Reserved.</p>
+                    <p>
+                        <a href="privacy_policy.html">Privacy Policy</a> | 
+                        <a href="terms_of_service.html">Terms of Service</a>
+                    </p>
+                    <p>Contact for support and suggestions: <a href="mailto:mcp140@student.aru.ac.uk">mcp140@student.aru.ac.uk</a></p>
+                    <p>Follow on 
+                        <a href="https://twitter.com" target="_blank">Twitter</a>, 
+                        <a href="https://facebook.com" target="_blank">Facebook</a>, 
+                        <a href="https://linkedin.com" target="_blank">LinkedIn</a>
+                    </p>
+                </div>
+            </footer>
+        
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    const sidebarToggle = document.getElementById("sidebarToggle");
+                    const sidebar = document.getElementById("sidebar");
+        
+                    sidebarToggle.addEventListener("click", function() {
+                        if (sidebar.style.display === "block") {
+                            sidebar.style.display = "none"; // Hide the sidebar
+                        } else {
+                            sidebar.style.display = "block"; // Show the sidebar
+                        }
+                    });
                 });
-            });
-        </script>
+            </script>
 
-    </div>
+        </div>
 
-
-    <div class="sidebar" id="sidebar">
-        <img src = "media/civic_builder.png" alt="image of the civic builder logo" class= "center_img">
-        <h2 class="sidebar_header"><b>CIVIC BUILDER v 0.1</b></h2>
-        <input type="text" id="tocSearch" placeholder="Search...">
-        <script>
-            document.getElementById('tocSearch').addEventListener('input', function() {
-                const query = this.value.toLowerCase();
-                document.querySelectorAll('.sidebar ul li').forEach(item => {
-                    const text = item.textContent.toLowerCase();
-                    item.style.display = text.includes(query) ? 'block' : 'none';
+        <div class="sidebar" id="sidebar">
+            <img src = "media/civic_builder.png" alt="placeholder image of the civic builder logo" class= "center_img_sidebar_hdr">
+            <h2 class="sidebar_header"><b>CIVIC BUILDER v. 0.3</b></h2>
+            <input type="text" id="tocSearch" placeholder="Search...">
+            <script>
+                document.getElementById('tocSearch').addEventListener('input', function() {
+                    const query = this.value.toLowerCase();
+                    document.querySelectorAll('.sidebar ul li').forEach(item => {
+                        const text = item.textContent.toLowerCase();
+                        item.style.display = text.includes(query) ? 'block' : 'none';
+                    });
                 });
-            });
-        </script>
-        <h2>Table of Contents</h2>
+            </script>
+
+            <p>
+                <a href="index.html">Return to Main Page</a>
+            </p>
+
+            <h2>Table of Contents</h2>
 
 
-        <h2>1. Overview</h2>
-        <ul>
-            <li><a href="about.html">1.1 - About Civic Builder</a></li>
-            <li><a href="version_history.html">1.2 - Version History & Updates</a></li>
-            <li><a href="getting_started.html">1.3 - Getting Started with Civic Builder</a></li>
-            <li><a href="installation_setup.html">1.4 - Installation & Setup</a></li>
-            <li><a href="web_application_guide.html">1.5 - Using the Web Application</a></li>
-            <li><a href="contributing.html">1.6 - Contributing</a></li>
-            <li><a href="troubleshooting_faq.html">1.7 - Troubleshooting & FAQs</a></li>
-            <li><a href="acknowledgments.html">1.8 - Acknowledgments</a></li>
-        </ul>
+            <h2>1. Overview</h2>
+            <ul>
+                <li><a href="about.html">1.1 - About Civic Builder</a></li>
+                <li><a href="version_history.html">1.2 - Version History & Updates</a></li>
+                <li><a href="getting_started.html">1.3 - Getting Started with Civic Builder</a></li>
+                <li><a href="installation_setup.html">1.4 - Installation & Setup</a></li>
+                <li><a href="web_application_guide.html">1.5 - Using the Web Application</a></li>
+                <li><a href="contributing.html">1.6 - Contributing</a></li>
+                <li><a href="troubleshooting_faq.html">1.7 - Troubleshooting & FAQs</a></li>
+                <li><a href="acknowledgments.html">1.8 - Acknowledgments</a></li>
+            </ul>
 
-        <h2>2. Standalone Component</h2>
-        <ul>
-            <li><a href="import_imagery.html">2.1 - Import Imagery</a></li>
-            <li><a href="model_selection.html">2.2 - User Preferences and Model Selection</a></li>
-            <li><a href="detection_process.html">2.3 - Detection Process</a></li>
-            <li><a href="post_processing.html">2.4 - Post Processing of Output</a></li>
-            <li><a href="export_output.html">2.5 - Export of Output</a></li>
-        </ul>
+            <h2>2. Standalone Component</h2>
+            <ul>
+                <li><a href="import_imagery.html">2.1 - Import Imagery</a></li>
+                <li><a href="model_selection.html">2.2 - User Preferences and Model Selection</a></li>
+                <li><a href="detection_process.html">2.3 - Detection Process</a></li>
+                <li><a href="post_processing.html">2.4 - Post Processing of Output</a></li>
+                <li><a href="export_output.html">2.5 - Export of Output</a></li>
+            </ul>
 
-        <h2>3. Blender Plugin</h2>
-        <ul>
-            <li><a href="plugin_overview.html">3.1 - Blender Plugin Overview</a></li>
-            <li><a href="import_feature_data.html">3.2 - Importing Feature Data</a></li>
-            <li><a href="user_options.html">3.3 - User Controllable Options</a></li>
-            <li><a href="geometry_nodes_integration.html">3.4 - Geometry Nodes Integration</a></li>
-            <li><a href="adding_extra_features.html">3.5 - Adding Extra Features</a></li>
-        </ul>    
+            <h2>3. Blender Plugin</h2>
+            <ul>
+                <li><a href="plugin_overview.html">3.1 - Blender Plugin Overview</a></li>
+                <li><a href="import_feature_data.html">3.2 - Importing Feature Data</a></li>
+                <li><a href="user_options.html">3.3 - User Controllable Options</a></li>
+                <li><a href="geometry_nodes_integration.html">3.4 - Geometry Nodes Integration</a></li>
+                <li><a href="adding_extra_features.html">3.5 - Adding Extra Features</a></li>
+                <p>Civic Builder 0.2</p>
+            </ul>   
+        </div>
     </div>
 
 

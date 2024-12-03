@@ -10,12 +10,140 @@
     
     <div class="content">
         <h1 class="center_txt"><b>Civic Builder Documentation</b></h1>
-
         <hr>
+        <h1>User Options in Civic Builder Blender Plugin</h1>
+        <hr>
+        <p>This page provides a detailed overview of all the user options available in the <strong>Civic Builder</strong> Blender plugin. Each option is explained with its purpose, default values, and examples.</p>
 
-        <h1 class>About Civic Builder</h1>
-        <p>To export your results in OBJ format, follow these instructions:</p>
-        <p>[Placeholder text explaining the export process goes here.]</p>
+        <h2>General Options</h2>
+
+        <div class="option">
+            <h3>Building Height</h3>
+            <p>
+                Adjust the height for extruded buildings. This value is used when applying the <strong>Extrude Building</strong> operation.
+            </p>
+            <ul>
+                <li><strong>Property:</strong> <code>building_height</code></li>
+                <li><strong>Default Value:</strong> <code>25.0</code></li>
+            </ul>
+            <p>Example usage:</p>
+            <div class="example">
+                Building Height: 30.0
+            </div>
+        </div>
+
+        <div class="option">
+            <h3>Texture Paths</h3>
+            <p>
+                Specify file paths for roof, wall, and imagery textures. These textures are applied to imported objects.
+            </p>
+            <ul>
+                <li><strong>Properties:</strong></li>
+                <ul>
+                    <li><code>roof_texture_path</code>: Path to the roof texture file</li>
+                    <li><code>wall_texture_path</code>: Path to the wall texture file</li>
+                    <li><code>imagery_texture_path</code>: Path to the imagery texture file</li>
+                </ul>
+                <li><strong>Default Value:</strong> None (must be set by the user)</li>
+            </ul>
+            <p>Example usage:</p>
+            <div class="example">
+                Roof Texture Path: C:\Textures\roof.jpg<br>
+                Wall Texture Path: C:\Textures\wall.jpg<br>
+                Imagery Texture Path: C:\Textures\imagery.jpg
+            </div>
+        </div>
+
+        <div class="option">
+            <h3>UV Scale</h3>
+            <p>
+                Scale the UV mapping for roofs and walls during texture application. Adjust to fit texture resolution.
+            </p>
+            <ul>
+                <li><strong>Properties:</strong></li>
+                <ul>
+                    <li><code>roof_uv_scale</code>: Scaling factor for roof UV mapping</li>
+                    <li><code>wall_uv_scale</code>: Scaling factor for wall UV mapping</li>
+                </ul>
+                <li><strong>Default Values:</strong></li>
+                <ul>
+                    <li><code>roof_uv_scale</code>: <code>40.0</code></li>
+                    <li><code>wall_uv_scale</code>: <code>40.0</code></li>
+                </ul>
+            </ul>
+            <p>Example usage:</p>
+            <div class="example">
+                Roof UV Scale: 50.0<br>
+                Wall UV Scale: 30.0
+            </div>
+        </div>
+
+        <h2>Key Features</h2>
+
+        <div class="option">
+            <h3>Extrude Building</h3>
+            <p>
+                Extrudes selected building footprints to the height defined in <code>building_height</code>.
+            </p>
+            <ul>
+                <li><strong>Operator:</strong> <code>object.extrude_building</code></li>
+            </ul>
+        </div>
+
+        <div class="option">
+            <h3>Apply Textures</h3>
+            <p>
+                Applies roof, wall, and imagery textures to the selected object. Materials are assigned based on face orientation.
+            </p>
+            <ul>
+                <li><strong>Operator:</strong> <code>object.apply_textures</code></li>
+            </ul>
+        </div>
+
+        <div class="option">
+            <h3>Regenerate UVs</h3>
+            <p>
+                Regenerates UV mappings using Cube Projection for roofs, walls, or imagery.
+            </p>
+            <ul>
+                <li><strong>Operators:</strong></li>
+                <ul>
+                    <li><code>object.regenerate_roof_uvs</code></li>
+                    <li><code>object.regenerate_wall_uvs</code></li>
+                    <li><code>object.regenerate_imagery_uvs</code></li>
+                </ul>
+            </ul>
+        </div>
+
+        <div class="option">
+            <h3>Import Feature Data</h3>
+            <p>
+                Import building footprints or imagery in <code>.obj</code> format. Automatically aligns geometry.
+            </p>
+            <ul>
+                <li><strong>Operators:</strong></li>
+                <ul>
+                    <li><code>object.import_footprint_obj</code></li>
+                    <li><code>object.import_imagery_obj</code></li>
+                </ul>
+            </ul>
+        </div>
+
+        <div class="option">
+            <h3>Help and Documentation</h3>
+            <p>
+                Opens local documentation for the Civic Builder plugin.
+            </p>
+            <ul>
+                <li><strong>Operator:</strong> <code>object.open_documentation</code></li>
+            </ul>
+        </div>
+
+        <h2>Notes</h2>
+        <div class="note">
+            <strong>Tip:</strong> Save frequently while using the plugin, and keep your file paths organized for better project management.
+        </div>
+
         <p><a href="index.html">Back to Main Page</a></p>
 
         <footer class="footer">

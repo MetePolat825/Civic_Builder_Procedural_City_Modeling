@@ -1,0 +1,1 @@
+# copy of latest extraction logs in case application crashes

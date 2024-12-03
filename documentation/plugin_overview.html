@@ -10,12 +10,88 @@
     
     <div class="content">
         <h1 class="center_txt"><b>Civic Builder Documentation</b></h1>
-
         <hr>
+        <h1 class="center_txt"><b>Blender Plugin Overview</b></h1>
+        <hr>
+        
+        <h2>Introduction</h2>
+        <p style="text-align: justify;">
+            The Civic Builder Blender plugin streamlines the integration of 3D models generated in Civic Builder into Blender. The plugin provides tools for importing geometry, applying textures, and generating 3D buildings with ease.
+        </p>
+        
+        <h2>Installing the Plugin</h2>
+        <ol>
+            <li>Download the <b>Blender Plugin</b> from the Civic Builder website.</li>
+            <li>Open Blender, navigate to <b>Edit → Preferences → Add-ons</b>.</li>
+            <li>Click <b>Install...</b>, then locate and select the plugin file (<i>.py</i>).</li>
+            <li>Enable the plugin by checking the box next to "Civic Builder Plugin".</li>
+        </ol>
+        <div class="image-center">
+            <img src="media/blender_overview_1.PNG" alt="Installing the plugin in Blender" style="width:25%;">
+            <p class="caption">Installing the Civic Builder Plugin.</p>
+        </div>
 
-        <h1 class>About Civic Builder</h1>
-        <p>To export your results in OBJ format, follow these instructions:</p>
-        <p>[Placeholder text explaining the export process goes here.]</p>
+        <h2>Importing Geometry</h2>
+        <p>The plugin supports importing <b>.OBJ</b> files for footprints and imagery:</p>
+        <ol>
+            <li>Open the Civic Builder tab in the Blender Sidebar (<b>N</b> key).</li>
+            <li>Click <b>Import Footprint Geometry</b> or <b>Import Imagery Geometry</b>, then select the desired <b>.OBJ</b> file.</li>
+            <li>The geometry will appear in the Blender viewport.</li>
+        </ol>
+        <div class="image-placeholder">
+            <img src="media/blender_import_geometry.png" alt="Importing geometry in Blender" style="width:100%; max-width:600px;">
+            <p class="caption">Importing geometry using the plugin.</p>
+        </div>
+
+        <h2>Extruding Buildings</h2>
+        <ol>
+            <li>Select a footprint object in the viewport.</li>
+            <li>Specify the desired building height in the "Building Height" field under the <b>Geometry Generation</b> section.</li>
+            <li>Click <b>Extrude Building</b> to generate the 3D structure.</li>
+        </ol>
+        <div class="image-placeholder">
+            <img src="media/blender_extrude_building.png" alt="Extruding buildings in Blender" style="width:100%; max-width:600px;">
+            <p class="caption">Extruding a 3D building from a footprint.</p>
+        </div>
+
+        <h2>Applying Textures</h2>
+        <ol>
+            <li>Set the file paths for roof, wall, and imagery textures under the "Set Texture Paths" section.</li>
+            <li>Select the target object, then click <b>Apply Textures</b> to map the textures onto the object.</li>
+        </ol>
+        <div class="image-placeholder">
+            <img src="media/blender_apply_textures.png" alt="Applying textures in Blender" style="width:100%; max-width:600px;">
+            <p class="caption">Applying textures using the plugin.</p>
+        </div>
+
+        <h2>Regenerating UV Mapping</h2>
+        <p>The plugin offers tools to regenerate UV mappings for better texture alignment:</p>
+        <ol>
+            <li>Select the object whose UVs need regeneration.</li>
+            <li>Choose the appropriate regeneration tool (<b>Roof UVs</b>, <b>Wall UVs</b>, or <b>Imagery UVs</b>).</li>
+            <li>Click the corresponding button to apply cube projection mapping.</li>
+        </ol>
+        <div class="image-placeholder">
+            <img src="media/blender_regenerate_uvs.png" alt="Regenerating UVs in Blender" style="width:100%; max-width:600px;">
+            <p class="caption">Regenerating UV mappings for better texture alignment.</p>
+        </div>
+
+        <h2>Help and Documentation</h2>
+        <p>
+            Access documentation directly from the plugin interface by clicking <b>Open Documentation</b> under the "Help and Documentation" section. This opens the local documentation file in your default browser.
+        </p>
+        <div class="image-placeholder">
+            <img src="media/blender_open_documentation.png" alt="Accessing documentation in Blender" style="width:100%; max-width:600px;">
+            <p class="caption">Opening the Civic Builder documentation from Blender.</p>
+        </div>
+
+        <h2>Next Steps</h2>
+        <p>
+            With these tools, you can quickly transform raw geometry into fully realized 3D models. Explore advanced workflows and customization in the following sections.
+        </p>
+
+        <p><a href="export_output.html">Previous: Export of Output</a> | <a href="import_feature_data.html">Next: Importing Feature Data</a></p>
+
         <p><a href="index.html">Back to Main Page</a></p>
 
         <footer class="footer">

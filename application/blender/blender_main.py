@@ -1,7 +1,7 @@
 import bpy
 import os
 import math
-from webbrowser import webbrowser
+import webbrowser
 
 # Ensure everything is unregistered before registering again
 if "bpy" in locals():

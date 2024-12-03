@@ -1,3 +1,4 @@
+# contains functions for post-processing the contour output of the segmentation model.
 from cv2 import arcLength,approxPolyDP,convexHull,findContours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, morphologyEx, MORPH_CLOSE,boundingRect
 from numpy import array, uint8, ndarray, logical_or, ones,all
 
